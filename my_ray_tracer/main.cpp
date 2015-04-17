@@ -234,7 +234,7 @@ void rasterize ()
                 unsigned int i = shapes[s].mesh.material_ids[f];
                 glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
             }
-            for (size_t v = 0; v  < 3; v++)
+            for (size_t v = 0; v < 3; v++)
             {
                 unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
                 glNormal3f (shapes[s].mesh.normals[index],
@@ -345,8 +345,25 @@ void idle ()
 {
 }
 
+void test()
+{
+    Ray ray(Vec3f(4, 1, 4), Direction(0.0, acos(-1)));
+    Vec3f plane[3];
+    plane[0] = Vec3f(0.0, 0.0, 0.0);
+    plane[1] = Vec3f(0.0, 0.0, 10.0);
+    plane[2] = Vec3f(10.0, 0.0, 0.0);
+    
+    Vec3f result;
+    if (ray.intersect(plane, result))
+        cout << "result = " << result << endl;
+    else
+        cout << "false" << endl;
+}
+
 int main (int argc, char ** argv)
 {
+    test();
+    
     glutInit (&argc, argv); // Initialize a glut app
     glutInitDisplayMode (GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE); // Setup a RGBA framebuffer to display, with a depth buffer (z-buffer), in double buffer mode (fill a buffer then update the screen)
     glutInitWindowSize (DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT); // Set the window app size on screen

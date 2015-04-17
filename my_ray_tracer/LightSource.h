@@ -15,6 +15,7 @@ struct Direction
     
     //methods
     Direction(float angleXZ = 0, float angleY = 0);
+    Vec3f toVector();
 };
 
 struct Ray
@@ -25,6 +26,7 @@ struct Ray
         
     //methods
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Direction direction = Direction(0.0, 0.0));
+    bool intersect(Vec3f * triangle, Vec3f &result);
 };
 
 struct LightSource
