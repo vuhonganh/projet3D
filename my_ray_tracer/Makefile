@@ -12,6 +12,9 @@ CXXFLAGS = $(FLAGS)
 
 OBJS = $(SRCS:.cpp=.o)   
 
+all: $(CIBLE)
+
+
 $(CIBLE): $(OBJS)
 	g++ $(LDFLAGS) -o $(CIBLE) $(OBJS) $(LIBS)
 clean:
