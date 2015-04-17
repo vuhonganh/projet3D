@@ -358,6 +358,12 @@ void test()
         cout << "result = " << result << endl;
     else
         cout << "false" << endl;
+
+    Vec3f result2;
+    if (ray.intersect_remake(plane, result2))
+        cout << "result2 = " << result2 << endl;
+    else
+        cout << "false" << endl;
 }
 
 int main (int argc, char ** argv)

@@ -156,7 +156,7 @@ public:
   };
 
   inline Vec3 operator/ (T s) const {
-	Vec3 res;
+    Vec3 res;
 	res[0] = p[0] / s;
 	res[1] = p[1] / s;
 	res[2] = p[2] / s;
@@ -174,7 +174,7 @@ public:
   inline bool operator < (const Vec3 & a) const {
 	return(p[0] < a[0] && p[1] < a[1] && p[2] < a[2]);
   };
-		
+
   inline bool operator >= (const Vec3 &a) const {
 	return(p[0] >= a[0] && p[1] >= a[1] && p[2] >= a[2]);
   };

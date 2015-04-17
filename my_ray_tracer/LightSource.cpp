@@ -38,6 +38,7 @@ Vec3f Direction::toVector()
                  );
 }
 
+//TO Hung: need to check if the intersection point lies in the triangle ?
 bool Ray::intersect(Vec3f * p, Vec3f &result)
 {
     Vec3f o = this->position;
@@ -58,7 +59,7 @@ bool Ray::intersect(Vec3f * p, Vec3f &result)
 //    float b1 = dot(r, w);
 //    float b2 = 1 - b0 - b1;
     
-//    if (b0 < 0 || b1 < 0 || b2 < 0)
+//    if (b0 < 0 || b1 < 0 || b2 < 0) //IS IT STILL CORRECT WHILE NOT CHECKING THIS?
 //        return false;
     
     float t = dot(e1, r);
@@ -70,4 +71,71 @@ bool Ray::intersect(Vec3f * p, Vec3f &result)
     }
     
     return false;
+}
+
+bool Ray::intersect_remake(Vec3f * triangle, Vec3f &result)
+{
+    Vec3f o = this->position;
+    Vec3f w = this->direction.toVector();
+
+    if(intersect2(triangle, o, w, result))
+        return true;
+    return false;
+}
+
+//o is the point initial, w is the direction
+bool Ray::intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result)
+{
+    Vec3f A = triangleABC[0];
+    Vec3f BA = triangleABC[1] - A;
+    Vec3f CA = triangleABC[2] - A;
+
+    //vector normal of the plane ABC:
+    Vec3f n = cross(BA, CA);
+    n /= n.length();
+
+    //the point lies in the plane is: (P-A).n = 0
+    //with X = o + w.t, where t is the distance along direction w
+    float t = (dot(A,n) - dot(o,n))/(dot(w,n));
+    Vec3f X = o + w*t;
+    if (t > EPS)
+    {
+
+        float M[] = {dot(BA, BA), dot(BA,CA)};
+        float N[] = {dot(BA, CA), dot(CA, CA)};
+
+        Vec3f XA = X - A;
+        float P[] = {dot(XA, BA), dot(XA, CA)};
+        float resEq[2];
+        if(solveLinear2(M, N, P, resEq))
+        {
+            if( (0 <= resEq[0]) && (resEq[0] <= 1) &&
+                (0 <= resEq[1]) && (resEq[1] <= 1) &&
+                    resEq[0] + resEq[1] <= 1
+              )
+            {
+                result = X;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//solve Mx + Ny = P, where M,N,P are Vec2f each
+bool Ray::solveLinear2(float M[], float N[], float P[], float result[])
+{
+    float D = M[0]*N[1] - M[1]*N[0];
+
+    if (fabs(D) < EPS)
+        return false;
+    else
+    {
+        float Dx = P[0]*N[1] - P[1]*N[0];
+        float Dy = M[0]*P[1] - M[1]*P[0];
+
+        result[0] = Dx/D;
+        result[1] = Dy/D;
+        return true;
+    }
 }
