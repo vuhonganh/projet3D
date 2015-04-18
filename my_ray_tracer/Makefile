@@ -5,7 +5,7 @@ LIBS =  -L/usr/lib/nvidia/ -lglut -lGLU -lGL -lm
 CC = g++
 CPP = g++
 
-FLAGS = -Wall -O2 
+FLAGS = -Wall -O2 -std=c++11
 
 CFLAGS = $(FLAGS)
 CXXFLAGS = $(FLAGS)

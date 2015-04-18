@@ -347,23 +347,23 @@ void idle ()
 
 void test()
 {
-    Ray ray(Vec3f(10, 1, 10), Direction(0.0, acos(-1)));
+    Ray ray(Vec3f(4, 1, 4), Direction(0.0, acos(-1)));
     Vec3f plane[3];
     plane[0] = Vec3f(0.0, 0.0, 0.0);
-    plane[1] = Vec3f(0.0, 0.0, 10.0);
-    plane[2] = Vec3f(10.0, 0.0, 0.0);
+    plane[1] = Vec3f(0.0, 0.0, 8.9);
+    plane[2] = Vec3f(8.9, 0.0, 0.0);
     
     Vec3f result;
     if (ray.intersect(plane, result))
-        cout << "result = " << result << endl;
+        cout << "intersect gives result = " << result << endl;
     else
-        cout << "false" << endl;
+        cout << "intersect gives false" << endl;
 
     Vec3f result2;
     if (ray.intersect_remake(plane, result2))
-        cout << "result2 = " << result2 << endl;
+        cout << "intersect_remake gives result = " << result2 << endl;
     else
-        cout << "false" << endl;
+        cout << "intersect_remake gives false" << endl;
 }
 
 int main (int argc, char ** argv)
