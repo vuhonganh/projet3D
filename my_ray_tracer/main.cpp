@@ -347,7 +347,7 @@ void idle ()
 
 void test()
 {
-    Ray ray(Vec3f(4, 1, 4), Direction(0.0, acos(-1)));
+    Ray ray(Vec3f(10, 1, 10), Direction(0.0, acos(-1)));
     Vec3f plane[3];
     plane[0] = Vec3f(0.0, 0.0, 0.0);
     plane[1] = Vec3f(0.0, 0.0, 10.0);

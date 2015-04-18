@@ -1,6 +1,6 @@
 CIBLE = my_ray_tracer
 SRCS = $(wildcard *.cpp)
-LIBS =  -L/usr/lib/nvidia-340/ -lglut -lGLU -lGL -lm 
+LIBS =  -L/usr/lib/nvidia/ -lglut -lGLU -lGL -lm 
 
 CC = g++
 CPP = g++
@@ -13,7 +13,6 @@ CXXFLAGS = $(FLAGS)
 OBJS = $(SRCS:.cpp=.o)   
 
 all: $(CIBLE)
-
 
 $(CIBLE): $(OBJS)
 	g++ $(LDFLAGS) -o $(CIBLE) $(OBJS) $(LIBS)
