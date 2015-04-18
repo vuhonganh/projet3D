@@ -87,7 +87,8 @@ void initOpenGL()
 void computeSceneNormals()
 {
     for (unsigned int s = 0; s < shapes.size (); s++) 
-        if (shapes[s].mesh.normals.empty ()) {
+        if (shapes[s].mesh.normals.empty ())
+        {
             shapes[s].mesh.normals.resize (shapes[s].mesh.positions.size (), 0.f);
             for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
             {
@@ -120,7 +121,8 @@ void computeSceneNormals()
         }
 }
 
-void computeSceneBoundingSphere () {
+void computeSceneBoundingSphere ()
+{
     sceneCenter = Vec3f (0.f, 0.f, 0.f);
     unsigned int count = 0;
     for (unsigned int s = 0; s < shapes.size (); s++)
@@ -185,7 +187,7 @@ void init (const string & filename)
 {
     initOpenGL ();
     unsigned int i = filename.find_last_of ("/");
-    loadScene (filename, filename.substr (0, i+1));  
+    loadScene (filename, filename.substr (0, i+1));
     initCamera ();
     initLighting ();
 }
