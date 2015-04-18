@@ -14,11 +14,11 @@ class BSHNode
   BSHNode();
 
   //ci-dessous sont des valeurs moyennes:
-  Vec3f position;
-  Vec3f normal;
+  Vec3f position;//position of the center of sphere
+  Vec3f normal;//a normal vector average
   Vec3f color;
 
-  float radius;
+  float radius;//radius of the sphere
 
   BSHNode * leftChild;
   BSHNode * rightChild;

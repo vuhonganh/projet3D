@@ -345,6 +345,25 @@ void idle ()
 {
 }
 
+void test_intersectSphere()
+{
+    Vec3f o(9.0, 9.0, 9.0);
+    Vec3f w(-1.0, -1.0, -1.0);
+    //Vec3f w(1.0, 1.0, 1.0);
+
+    Ray ray(o, w);
+
+    Vec3f c(0.0, 0.0, 0.0); //sphere center at Origin (O,0,0)
+    float r = 15.5880;
+    Vec3f result;
+
+    if(ray.intersect_Sphere(o, w, c, r, result))
+        cout << "intersect sphere at " << result << endl;
+    else
+        cout << "not intersect sphere" << endl;
+
+}
+
 void test()
 {
     Ray ray(Vec3f(4, 1, 4), Direction(0.0, acos(-1)));
@@ -369,7 +388,8 @@ void test()
 int main (int argc, char ** argv)
 {
     test();
-    
+    test_intersectSphere();
+
     glutInit (&argc, argv); // Initialize a glut app
     glutInitDisplayMode (GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE); // Setup a RGBA framebuffer to display, with a depth buffer (z-buffer), in double buffer mode (fill a buffer then update the screen)
     glutInitWindowSize (DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT); // Set the window app size on screen

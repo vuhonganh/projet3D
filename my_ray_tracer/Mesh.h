@@ -22,7 +22,8 @@
 #include "Vec3.h"
 
 /// A simple vertex class storing position and normal
-class Vertex {
+class Vertex
+{
 public:
     inline Vertex () {}
     inline Vertex (const Vec3f & p, const Vec3f & n) : p (p), n (n) {}
@@ -32,23 +33,28 @@ public:
 };
 
 /// A Triangle class expressed as a triplet of indices (over an external vertex list)
-class Triangle {
+class Triangle
+{
 public:
-    inline Triangle () {
+    inline Triangle ()
+    {
         v[0] = v[1] = v[2] = 0;
     }
-    inline Triangle (const Triangle & t) {
+    inline Triangle (const Triangle & t)
+    {
         v[0] = t.v[0];
         v[1] = t.v[1];
         v[2] = t.v[2];
     }
-    inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2) {
+    inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2)
+    {
         v[0] = v0;
         v[1] = v1;
         v[2] = v2;
     }
     inline virtual ~Triangle () {}
-    inline Triangle & operator= (const Triangle & t) {
+    inline Triangle & operator= (const Triangle & t)
+    {
         v[0] = t.v[0];
         v[1] = t.v[1];
         v[2] = t.v[2];
@@ -58,13 +64,14 @@ public:
 };
 
 /// A Mesh class, storing a list of vertices and a list of triangles indexed over it.
-class Mesh {
+class Mesh
+{
 public:
-	std::vector<Vertex> V;
-	std::vector<Triangle> T;
+    std::vector<Vertex> V;
+    std::vector<Triangle> T;
 
     /// Loads the mesh from a <file>.off
-	void loadOFF (const std::string & filename);
+    void loadOFF (const std::string & filename);
     
     /// Compute smooth per-vertex normals
     void recomputeNormals ();

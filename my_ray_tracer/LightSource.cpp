@@ -13,6 +13,13 @@ Ray::Ray(Vec3f position, Direction direction)
     this->direction = direction;
 }
 
+
+Ray::Ray(Vec3f position, Vec3f vectorDir)
+{
+    this->position = position;
+    this->vectorDir = vectorDir;
+}
+
 LightSource::LightSource(int type, Vec3f position)
 {
     this->position = position;
@@ -139,3 +146,56 @@ bool Ray::solveLinear2(float M[], float N[], float P[], float result[])
         return true;
     }
 }
+
+//the intersection point presented by: o + w*t
+//it satisfies the equation of the sphere surface: (o + w*t - c)(o + w*t - c) = r^2
+bool Ray::intersect_Sphere(Vec3f &o, Vec3f &w, Vec3f &c, float &r, Vec3f &result)
+{
+    Vec3f oc = o - c;
+
+    //problem leads to solve second degree equation of form: At^2 + Bt + C = 0
+    float A = dot(w,w);
+    float B = 2*dot(oc, w);
+    float C = dot(oc, oc) - r*r;
+
+    float delta = B*B - 4*A*C;
+
+    if(delta < 0)
+        return false;
+    else if(delta == 0)
+    {
+        float t = -B/(2*A);
+        result = o + w*t;
+        return true;
+    }
+    else
+    {
+        float t1 = (-B + sqrt(delta))/(2*A);
+        float t2 = (-B - sqrt(delta))/(2*A);
+
+        //cut from outside, choose the smaller one (i.e. the nearer)
+        if( (t1 >= 0) && (t2 >= 0) )
+        {
+            result = o + w*min(t1, t2);
+            return true;
+        }
+        else if(t1 * t2 < 0) //cut from inside: one negative, one positive, choose the positive one (not sure)
+        {
+            result = o + w*max(t1, t2);
+            return true;
+        }
+        else
+            return false;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
