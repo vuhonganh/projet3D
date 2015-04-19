@@ -1,5 +1,5 @@
 // ----------------------------------------------
-// Informatique Graphique 3D & Réalité Virtuelle.
+// Informatique Graphique 3D & Realite Virtuelle.
 // Projet
 // Lancer de Rayon de Monte Carlo
 // Copyright (C) 2015 Tamy Boubekeur
