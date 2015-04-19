@@ -58,12 +58,12 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
             Vec3f direction = root + xVec + yVec - position;
             
             Ray ray(position, direction);
-            Vec3f brightness = ray.getBrightness(shapes, distanceToScreen, lightSource);
+            float color = ray.getColor(shapes, lightSource);
             
             unsigned int index = 3*(xPixel+yPixel*resolutionWidth);
 
-            rayImage[index] = brightness[0] * 255;
-            rayImage[index+1] = brightness[1] * 255;
-            rayImage[index+2] = brightness[2] * 255;
+            rayImage[index] = color * 255;
+            rayImage[index+1] = color * 255;
+            rayImage[index+2] = color * 255;
         }
 }

@@ -47,3 +47,20 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal)
     wi /= wi.length();
     return dot(normal, wi); 
 }
+
+void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle)
+{
+    for (size_t v = 0; v < 3; v++)
+    {
+        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
+        
+//        normal[v] = Vec3f(shapes[s].mesh.normals[index],
+//                              shapes[s].mesh.normals[index+1],
+//                              shapes[s].mesh.normals[index+2]);
+        
+        triangle[v] = Vec3f(shapes[s].mesh.positions[index],
+                            shapes[s].mesh.positions[index+1],
+                            shapes[s].mesh.positions[index+2]);
+    }
+}
+

@@ -7,15 +7,11 @@ Ray::Ray(Vec3f position, Vec3f direction)
     this->direction = direction;
 }
 
-Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceToScreen, Vec3f lightSource)
-{  
-    Vec3f bestNormal;
-    Vec3f bestIntersection;
-    Vec3f bestTriangle[3];
-    
+pair <int, int> Ray::getNearestShape(const vector<tinyobj::shape_t> &shapes)
+{      
     bool flagOK = false;
     float bestDistance = -1;
-    int bestShape = 0;
+    pair <int, int> result;
     
     for (size_t s = shapes.size() - 1; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
@@ -38,47 +34,51 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
             if (this->intersect_remake(triangle, intersection))
             {
                 flagOK = true;
-                
                 float distance = (intersection - position).length();
                 if (bestDistance < 0 || bestDistance > distance)
                 {
-                    for (int v = 0; v < 3; ++v)
-                        bestTriangle[v] = triangle[v];
-                    
-                    bestNormal = normal[0];
                     bestDistance = distance;
-                    bestIntersection = intersection;
-                    bestShape = s;
+                    result = make_pair(s, f);
                 }
             }
         }
     
-    if (flagOK == false)
+    if (flagOK == false) return make_pair(-1, -1);
+    else return result;
+}
+
+float Ray::getColor(const vector <tinyobj::shape_t> &shapes, Vec3f lightSource)
+{
+    pair <int, int> sh1 = this->getNearestShape(shapes);
+    if (sh1.first == -1) return 0;
+    Vec3f triangle[3];
+    getTriangleFromShape(shapes, sh1.first, sh1.second, triangle);
+    
+    Vec3f intersection;
+    this->intersect_remake(triangle, intersection);
+    
+    Ray reflectedRay(intersection, lightSource - intersection);
+    pair <int, int> tempSh = reflectedRay.getNearestShape(shapes);
+    if (tempSh.first != -1)
     {
-        return Vec3f(0.0, 0.0, 0.0);
+        Vec3f tempTriangle[3];
+        getTriangleFromShape(shapes, tempSh.first, tempSh.second, tempTriangle);
+        
+        Vec3f tempIntersection;
+        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
+        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
+            return 0;
     }
-    else
-    {
-//        unsigned char grey = 255 * (bestShape + 1) / shapes.size();
-//        return Vec3f(grey, grey, grey);
+    
+    Vec3f wi = intersection - position;
+    Vec3f wo = lightSource - intersection;
+    Vec3f n = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
         
-        Vec3f wi = bestIntersection - position;
-        Vec3f wo = lightSource - bestIntersection;
-        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+    wi.normalize();
+    wo.normalize();
+    n.normalize();
         
-        wi.normalize();
-        wo.normalize();
-        n.normalize();
-        
-        float color = response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
-        
-//        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
-//        n.normalize();
-//        float color = Lambert(position, bestIntersection, n);
-        
-        unsigned char grey = int(255 * color);
-        return Vec3f(grey, grey, grey);
-    }
+    return response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?
@@ -182,3 +182,30 @@ bool Ray::solveLinear2(float M[], float N[], float P[], float result[])
         return true;
     }
 }
+
+//if (flagOK == false)
+//{
+//    return Vec3f(0.0, 0.0, 0.0);
+//}
+//else
+//{
+////        unsigned char grey = 255 * (bestShape + 1) / shapes.size();
+////        return Vec3f(grey, grey, grey);
+    
+//    Vec3f wi = bestIntersection - position;
+//    Vec3f wo = lightSource - bestIntersection;
+//    Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+    
+//    wi.normalize();
+//    wo.normalize();
+//    n.normalize();
+    
+//    float color = response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
+    
+////        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+////        n.normalize();
+////        float color = Lambert(position, bestIntersection, n);
+    
+//    unsigned char grey = int(255 * color);
+//    return Vec3f(grey, grey, grey);
+//}

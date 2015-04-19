@@ -15,7 +15,8 @@ struct Ray
         
     //methods
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f direction = Vec3f(0.0, 0.0, -1.0));
-    Vec3f getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceToScreen, Vec3f lightSource);
+    pair <int, int> getNearestShape(const vector<tinyobj::shape_t> &shapes);
+    float getColor(const vector <tinyobj::shape_t> &shapes, Vec3f lightSource);
     
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
