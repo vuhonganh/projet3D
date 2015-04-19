@@ -25,9 +25,7 @@ struct RaySource
     vector <Ray> rays;
     
     //methods
-    RaySource(Vec3f position, Vec3f lookAtPosition, Vec3f upVector,
-                float distanceToScreen, float verticalAngle, float horizontalAngle, 
-                int resolutionWidth, int resolutionHeight);
+    RaySource(Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight);
     
     void exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned char * rayImage);
 };
