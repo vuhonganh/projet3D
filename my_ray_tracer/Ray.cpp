@@ -7,24 +7,22 @@ Ray::Ray(Vec3f position, Vec3f direction)
     this->direction = direction;
 }
 
-pair <int, int> Ray::getNearestShape(const vector<tinyobj::shape_t> &shapes)
+pair <int, int> Ray::getNearestShape(const vector<tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle)
 {      
     bool flagOK = false;
     float bestDistance = -1;
     pair <int, int> result;
     
-    for (size_t s = shapes.size() - 1; s < shapes.size(); s++)
+//    for (size_t s = shapes.size() - 1; s < shapes.size(); s++)
+    for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
         {
+            if (int(s) == exceptionTriangle.first && int(f) == exceptionTriangle.second) continue;
+            
             Vec3f triangle[3];
-            Vec3f normal[3];
             for (size_t v = 0; v < 3; v++)
             {
                 unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-                
-                normal[v] = Vec3f(shapes[s].mesh.normals[index],
-                                      shapes[s].mesh.normals[index+1],
-                                      shapes[s].mesh.normals[index+2]);
                 
                 triangle[v] = Vec3f(shapes[s].mesh.positions[index],
                                     shapes[s].mesh.positions[index+1],
@@ -49,26 +47,26 @@ pair <int, int> Ray::getNearestShape(const vector<tinyobj::shape_t> &shapes)
 
 float Ray::getColor(const vector <tinyobj::shape_t> &shapes, Vec3f lightSource)
 {
-    pair <int, int> sh1 = this->getNearestShape(shapes);
-    if (sh1.first == -1) return 0;
+    pair <int, int> sh = this->getNearestShape(shapes, make_pair(-1, -1));
+    if (sh.first == -1) return 0;
     Vec3f triangle[3];
-    getTriangleFromShape(shapes, sh1.first, sh1.second, triangle);
+    getTriangleFromShape(shapes, sh.first, sh.second, triangle);
     
     Vec3f intersection;
     this->intersect_remake(triangle, intersection);
     
-    Ray reflectedRay(intersection, lightSource - intersection);
-    pair <int, int> tempSh = reflectedRay.getNearestShape(shapes);
-    if (tempSh.first != -1)
-    {
-        Vec3f tempTriangle[3];
-        getTriangleFromShape(shapes, tempSh.first, tempSh.second, tempTriangle);
+//    Ray reflectedRay(intersection, lightSource - intersection);
+//    pair <int, int> tempSh = reflectedRay.getNearestShape(shapes, sh);
+//    if (tempSh.first != -1)
+//    {
+//        Vec3f tempTriangle[3];
+//        getTriangleFromShape(shapes, tempSh.first, tempSh.second, tempTriangle);
         
-        Vec3f tempIntersection;
-        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
-        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
-            return 0;
-    }
+//        Vec3f tempIntersection;
+//        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
+//        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
+//            return 0;
+//    }
     
 //    Vec3f wi = intersection - position;
 //    Vec3f wo = lightSource - intersection;
