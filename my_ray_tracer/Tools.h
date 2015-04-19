@@ -9,4 +9,6 @@ float f_Lambert(float k_d);
 
 float response_color(Vec3f w,Vec3f w0, Vec3f n, float L_w,float alpha,float f0,float k_d);
 
+float Lambert (Vec3f source, Vec3f position, Vec3f normal);
+
 #endif // TOOLS_H

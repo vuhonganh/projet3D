@@ -17,7 +17,7 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
     float bestDistance = -1;
     int bestShape = 0;
     
-    for (size_t s = 0; s < shapes.size(); s++)
+    for (size_t s = shapes.size() - 1; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
         {
             Vec3f triangle[3];
@@ -61,6 +61,7 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
     {
 //        unsigned char grey = 255 * (bestShape + 1) / shapes.size();
 //        return Vec3f(grey, grey, grey);
+        
         Vec3f wi = bestIntersection - position;
         Vec3f wo = lightSource - bestIntersection;
         Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
@@ -69,7 +70,12 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
         wo.normalize();
         n.normalize();
         
-        float color = response_color(wi, wo, n, 1.0, 0.5, 0.8, 1.0);
+        float color = response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
+        
+//        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+//        n.normalize();
+//        float color = Lambert(position, bestIntersection, n);
+        
         unsigned char grey = int(255 * color);
         return Vec3f(grey, grey, grey);
     }

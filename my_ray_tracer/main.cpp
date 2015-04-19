@@ -270,7 +270,7 @@ void rayTrace ()
     cout << "eye = " << eye << endl;
     cout << "camTarget = " << camTarget << endl;
     
-    RaySource raySource(Vec3f(0, 100, 0), eye, camTarget, screenWidth, screenHeight);
+    RaySource raySource(Vec3f(0, 200, 0), eye, camTarget, screenWidth, screenHeight);
     raySource.exportToRGB(shapes, rayImage);
     cout << "DONE" << endl;
 }

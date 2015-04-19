@@ -39,3 +39,11 @@ float response_color(Vec3f w,Vec3f w0, Vec3f n, float L_w,float alpha,float f0,f
     L_w0=L_w*f*dot(n,w);
     return L_w0;
 }
+
+float Lambert (Vec3f source, Vec3f position, Vec3f normal)
+{
+    Vec3f wi(source - position);
+    
+    wi /= wi.length();
+    return dot(normal, wi); 
+}
