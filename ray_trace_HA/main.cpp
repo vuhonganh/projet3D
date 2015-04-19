@@ -432,6 +432,52 @@ void test()
         cout << "intersect_remake gives false" << endl;
 }
 
+
+float Lambert (Vertex v)
+{
+  Vec3f normal(v.n[0], v.n[1], v.n[2]);
+  Vec3f wi(source - v.p);
+
+  wi /= wi.length();
+  return dot(normal, wi);
+  
+}
+
+float BlinnPhong(Vertex v, float s)
+{
+  Vec3f wi(source - v.p);
+  Vec3f wo(camPos - v.p);
+  Vec3f wh(wi + wo);
+  wh /= wh.length(); 
+
+  return pow(dot(v.n, wh),s);
+
+}
+
+
+void drawScene ()
+{
+  glBegin (GL_TRIANGLES);
+  for (unsigned int i = 0; i < mesh.T.size (); i++) 
+    for (unsigned int j = 0; j < 3; j++) 
+      {
+	const Vertex & v = mesh.V[mesh.T[i].v[j]];
+	// EXERCISE : the following color response shall be replaced with a proper reflectance evaluation/shadow test/etc.
+	//	float color = Lambert(v);
+	float color = BlinnPhong(v, 10.0f);
+ 	glColor3f (color, color, color);
+	
+	//	glNormal3f (v.n[0], v.n[1], v.n[2]); // Specifies current normal vertex   
+	glVertex3f (v.p[0], v.p[1], v.p[2]); // Emit a vertex (one triangle is emitted each time 3 vertices are emitted)
+      }
+  glEnd (); 
+
+  //dessine à niveau 
+  //  drawGL(root, bshLevel);
+}
+
+
+
 int main (int argc, char ** argv)
 {
     test();
