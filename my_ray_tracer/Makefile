@@ -1,7 +1,7 @@
 CIBLE = my_ray_tracer
 SRCS = $(wildcard *.cpp)
-LIBS =  -L/usr/lib/nvidia/ -lglut -lGLU -lGL -lm 
-
+LIBS =  -L/usr/lib/nvidia/ -lglut -lGLU -lGL -lm
+#LIBS =  -framework GLUT -framework OpenGL -lm
 CC = g++
 CPP = g++
 
