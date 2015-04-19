@@ -13,6 +13,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+//#include <GLUT/GLUT.h>
+//#include <OpenGL/OpenGL.h>
 #include <GL/glut.h>
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
