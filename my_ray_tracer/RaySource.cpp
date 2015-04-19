@@ -3,13 +3,14 @@
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
-RaySource::RaySource(Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
+RaySource::RaySource(Vec3f lightSource, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
     this->verticalAngle = acos(-1) * 30 / 180;
     this->horizontalAngle = acos(-1) * 40 / 180;
     this->distanceToScreen = 200;
     this->upVector = Vec3f(0.0f, 10.0f, 0.0f);
     
+    this->lightSource = lightSource;
     this->position = position;
     this->lookAtPosition = lookAtPosition;
     this->resolutionWidth = resolutionWidth;
@@ -57,7 +58,7 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
             Vec3f direction = root + xVec + yVec - position;
             
             Ray ray(position, direction);
-            Vec3f brightness = ray.getBrightness(shapes, distanceToScreen);
+            Vec3f brightness = ray.getBrightness(shapes, distanceToScreen, lightSource);
             
             unsigned int index = 3*(xPixel+yPixel*resolutionWidth);
 

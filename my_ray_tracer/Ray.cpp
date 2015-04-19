@@ -7,23 +7,26 @@ Ray::Ray(Vec3f position, Vec3f direction)
     this->direction = direction;
 }
 
-Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceToScreen)
+Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceToScreen, Vec3f lightSource)
 {  
-    Vec3f bestResult;
+    Vec3f bestNormal;
+    Vec3f bestIntersection;
+    Vec3f bestTriangle[3];
+    
     bool flagOK = false;
     float bestDistance = -1;
     int bestShape = 0;
     
-    for (size_t s = 0; s < shapes.size(); s++)
+    for (size_t s = shapes.size() - 1; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
         {
             Vec3f triangle[3];
-            Vec3f brightness[3];
+            Vec3f normal[3];
             for (size_t v = 0; v < 3; v++)
             {
                 unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
                 
-                brightness[v] = Vec3f(shapes[s].mesh.normals[index],
+                normal[v] = Vec3f(shapes[s].mesh.normals[index],
                                       shapes[s].mesh.normals[index+1],
                                       shapes[s].mesh.normals[index+2]);
                 
@@ -39,8 +42,12 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
                 float distance = (intersection - position).length();
                 if (bestDistance < 0 || bestDistance > distance)
                 {
-                    bestResult = Vec3f(brightness[0]);
+                    for (int v = 0; v < 3; ++v)
+                        bestTriangle[v] = triangle[v];
+                    
+                    bestNormal = normal[0];
                     bestDistance = distance;
+                    bestIntersection = intersection;
                     bestShape = s;
                 }
             }
@@ -52,10 +59,25 @@ Vec3f Ray::getBrightness(const vector<tinyobj::shape_t> &shapes, float distanceT
     }
     else
     {
-        unsigned char grey = 255 * (bestShape + 1) / shapes.size();
+//        unsigned char grey = 255 * (bestShape + 1) / shapes.size();
+//        return Vec3f(grey, grey, grey);
+        
+        Vec3f wi = bestIntersection - position;
+        Vec3f wo = lightSource - bestIntersection;
+        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+        
+        wi.normalize();
+        wo.normalize();
+        n.normalize();
+        
+        float color = response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
+        
+//        Vec3f n = cross(bestTriangle[1] - bestTriangle[0], bestTriangle[2] - bestTriangle[0]);
+//        n.normalize();
+//        float color = Lambert(position, bestIntersection, n);
+        
+        unsigned char grey = int(255 * color);
         return Vec3f(grey, grey, grey);
-        
-        
     }
 }
 

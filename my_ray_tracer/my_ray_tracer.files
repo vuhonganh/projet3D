@@ -7,3 +7,8 @@ tiny_obj_loader.cpp
 tiny_obj_loader.h
 Tools.h
 Vec3.h
+Ray.h
+Ray.cpp
+Direction.h
+Direction.cpp
+Tools.cpp
