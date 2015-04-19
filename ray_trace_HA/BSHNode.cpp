@@ -83,7 +83,7 @@ void BSHNode::split(const std::vector<Vertex> &V, const std::vector<Triangle> &T
     }
     radius = max;
 
-    //stop when the leaf has les than TRIANGLES_PER_LEAF leaves
+    //stop when the leaf has less than TRIANGLES_PER_LEAF leaves
     if(T.size()<=TRIANGLES_PER_LEAF)
     {
         leftChild = nullptr;
