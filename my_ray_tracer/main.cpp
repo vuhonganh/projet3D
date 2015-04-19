@@ -17,6 +17,7 @@
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "LightSource.h"
+#include "Mesh.h"
 
 using namespace std;
 
