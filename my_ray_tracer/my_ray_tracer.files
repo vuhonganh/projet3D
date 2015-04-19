@@ -1,6 +1,8 @@
+main.cpp
+Ray.cpp
+Ray.h
 RaySource.cpp
 RaySource.h
-main.cpp
 tiny_obj_loader.cpp
 tiny_obj_loader.h
 Tools.h
