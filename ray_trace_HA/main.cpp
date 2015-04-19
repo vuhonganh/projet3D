@@ -433,25 +433,22 @@ void test()
 }
 
 
-float Lambert (Vertex v)
+float Lambert (Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f sourceLight)
 {
-  Vec3f normal(v.n[0], v.n[1], v.n[2]);
-  Vec3f wi(source - v.p);
+    Vec3f wi(sourceLight - posiPointSurface);
+    wi /= wi.length();
 
-  wi /= wi.length();
-  return dot(normal, wi);
-  
+    return dot(normalPointSurface, wi);
 }
 
-float BlinnPhong(Vertex v, float s)
+float BlinnPhong(Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f camPos, Vec3f sourceLight, float s)
 {
-  Vec3f wi(source - v.p);
-  Vec3f wo(camPos - v.p);
-  Vec3f wh(wi + wo);
-  wh /= wh.length(); 
+    Vec3f wi(sourceLight - posiPointSurface);
+    Vec3f wo(camPos - posiPointSurface);
+    Vec3f wh(wi + wo);
+    wh /= wh.length();
 
-  return pow(dot(v.n, wh),s);
-
+    return pow(dot(normalPointSurface, wh),s);
 }
 
 

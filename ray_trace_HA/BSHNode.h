@@ -12,7 +12,7 @@ class BSHNode
   BSHNode(const std::vector<Vertex> &V, const std::vector<Triangle> &T);
   void split(const std::vector<Vertex> &V, const std::vector<Triangle> &T);
   BSHNode();
-
+	
   static const int TRIANGLES_PER_LEAF=3;
 
   //ci-dessous sont des valeurs moyennes:

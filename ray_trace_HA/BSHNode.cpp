@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-
+    
 BSHNode::BSHNode(const Mesh& m)
 {
     split(m.V, m.T);
