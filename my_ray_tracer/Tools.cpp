@@ -64,3 +64,12 @@ void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, 
     }
 }
 
+float BlinnPhong(Vec3f position, Vec3f normal, Vec3f source, Vec3f camPos, float s)
+{
+    Vec3f wi(source - position);
+    Vec3f wo(camPos - position);
+    Vec3f wh(wi + wo);
+    wh /= wh.length(); 
+    
+    return pow(dot(normal, wh),s);
+}

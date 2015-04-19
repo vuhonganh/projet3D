@@ -68,19 +68,15 @@ float Ray::getColor(const vector <tinyobj::shape_t> &shapes, Vec3f lightSource)
 //            return 0;
 //    }
     
-//    Vec3f wi = intersection - position;
-//    Vec3f wo = lightSource - intersection;
-//    Vec3f n = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
-        
-//    wi.normalize();
-//    wo.normalize();
-//    n.normalize();
-    
-//    return response_color(wi, wo, n, 1.0, 0.5, 0.5, 1.0);
-    
+    Vec3f wi = intersection - position;
+    Vec3f wo = lightSource - intersection;
     Vec3f n = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
+//    Vec3f n = cross(triangle[0] - triangle[1], triangle[0] - triangle[2]);
+        
     n.normalize();
-    return Lambert(position, intersection, n);
+    
+//    return response_color(wi, wo, n, 1.0, 0.5, 0.8, 1.0);
+    return BlinnPhong(intersection, n, lightSource, position, 1);
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?

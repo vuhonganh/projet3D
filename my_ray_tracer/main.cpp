@@ -1,6 +1,6 @@
 // ----------------------------------------------
-// Informatique Graphique 3D & Réalité Virtuelle.
-// Projet
+// Informatique Graphique 3D & Realite Virtuelle.
+// Proje
 // Lancer de Rayon de Monte Carlo
 // Copyright (C) 2015 Tamy Boubekeur
 // All rights reserved.
@@ -222,21 +222,81 @@ void reshape (int w, int h)
     memset (rayImage, 0, l);
 }
 
+void polar2Cartesian (float phi, float theta, float d, float & x, float & y, float & z) 
+{
+  x = d*sin (theta) * cos (phi);
+  y = d*cos (theta);
+  z = d*sin (theta) * sin (phi);
+}
+
+void  glSphere(float xc, float yc, float zc, float radius)
+{
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glTranslatef(xc, yc, zc);
+  
+  //sphere 
+  glBegin(GL_TRIANGLES);	
+  
+  for(int theta_step = 0; theta_step < 18; theta_step++)
+    for(int phi_step = 0; phi_step < 36; phi_step++)
+      {
+	float theta      = M_PI*theta_step/18.0;
+	float phi        = 2*M_PI*phi_step/36.0;
+	float theta_next = M_PI*(theta_step+1)/18.0;
+	float phi_next   = 2*M_PI*(phi_step+1)/36.0;
+	
+	float d = radius;
+	
+	float x[4];
+	float y[4];
+	float z[4];
+	
+	// points:
+	polar2Cartesian (phi, theta, d, x[1], y[1], z[1]);
+	polar2Cartesian (phi_next, theta, d, x[0], y[0], z[0]);
+	polar2Cartesian (phi, theta_next, d, x[2], y[2], z[2]);
+	polar2Cartesian (phi_next, theta_next, d, x[3], y[3], z[3]);
+
+	//first triangle 3 2 1
+	for (int i = 3; i > 0; i--)
+	  {
+	    glColor3f(abs(x[i-1])/d, abs(y[i-1])/d, abs(z[i-1])/d);
+	    glVertex3f(x[i-1], y[i-1], z[i-1]);       
+	  }
+	
+	//second triangle 4 3 1
+	for (int i = 4; i > 0; i--)
+	  {
+	    if (i == 2)
+	      continue;
+	    glColor3f(abs(x[i-1])/d, abs(y[i-1])/d, abs(z[i-1])/d);
+	    glVertex3f(x[i-1], y[i-1], z[i-1]);
+	  }
+      }
+  glEnd();
+  glPopMatrix();
+}
+
+Vec3f lightSource(1.0f, 1.0f, 1.0f);
 void rasterize ()
 {
     setupCamera ();   
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
     glBegin (GL_TRIANGLES);
     glColor3f (1.f, 1.f, 1.f);
+    lightSource = Vec3f(0.0f, 0.0f, 0.0f);
+    
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {                     
-            if (!materials.empty ())
-            {
-                // MAIN FUNCTION TO CHANGE !
-                unsigned int i = shapes[s].mesh.material_ids[f];
-                glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
-            }
+        {                  
+//            if (!materials.empty ())
+//            {
+//                // MAIN FUNCTION TO CHANGE !
+//                unsigned int i = shapes[s].mesh.material_ids[f];
+//                glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
+//            }
+            
             for (size_t v = 0; v < 3; v++)
             {
                 unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
@@ -246,8 +306,21 @@ void rasterize ()
                 glVertex3f (shapes[s].mesh.positions[index],
                             shapes[s].mesh.positions[index+1],
                             shapes[s].mesh.positions[index+2]);
+                
+                Vec3f temp = Vec3f(shapes[s].mesh.positions[index],
+                                    shapes[s].mesh.positions[index+1],
+                                    shapes[s].mesh.positions[index+2]);
+                
+                if (s == 1 && f == 0)
+                    lightSource += temp;
             }
         }
+    
+    lightSource /= 3;
+    glSphere(100, 100, 100, 20);
+    lightSource[1] -= 10;
+    glSphere(lightSource[0], lightSource[1], lightSource[2], 40);
+    
     glEnd ();
     glFlush (); // Ensures any previous OpenGL call has been executed
     glutSwapBuffers ();  // swap the render buffer and the displayed (screen) one
@@ -262,7 +335,6 @@ void displayRayImage()
 }
 
 // MAIN FUNCTION TO CHANGE !
-Vec3f lightSource;
 void rayTrace ()
 {
     Vec3f eye = polarToCartesian (camEyePolar);
@@ -272,7 +344,9 @@ void rayTrace ()
     cout << "eye = " << eye << endl;
     cout << "camTarget = " << camTarget << endl;
     
-    RaySource raySource(Vec3f(0, 200, 0), eye, camTarget, screenWidth, screenHeight);
+//    RaySource raySource(Vec3f(0, 200, 0), eye, camTarget, screenWidth, screenHeight);
+    RaySource raySource(lightSource, eye, camTarget, screenWidth, screenHeight);
+    
     raySource.exportToRGB(shapes, rayImage);
     cout << "DONE" << endl;
 }

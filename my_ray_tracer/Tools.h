@@ -16,4 +16,6 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal);
 
 void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle);
 
+float BlinnPhong(Vec3f position, Vec3f normal, Vec3f source, Vec3f camPos, float s);
+
 #endif // TOOLS_H
