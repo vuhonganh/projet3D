@@ -83,6 +83,14 @@ void BSHNode::split(const std::vector<Vertex> &V, const std::vector<Triangle> &T
     }
     radius = max;
 
+    //stop when the leaf has less than TRIANGLES_PER_LEAF leaves
+    if(T.size()<=TRIANGLES_PER_LEAF)
+    {
+        leftChild = nullptr;
+        rightChild = nullptr;
+        return;
+    }
+
     //trouver le plan qui sépare les triangles:
     Vec3f delta(xyzMin - xyzMax);
     double maxDirection = abs(delta[0]);

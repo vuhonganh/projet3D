@@ -21,8 +21,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 800;
-static const unsigned int DEFAULT_SCREENHEIGHT = 600;
+static const unsigned int DEFAULT_SCREENWIDTH = 400;
+static const unsigned int DEFAULT_SCREENHEIGHT = 300;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -260,6 +260,7 @@ void displayRayImage()
 }
 
 // MAIN FUNCTION TO CHANGE !
+Vec3f lightSource;
 void rayTrace ()
 {
     Vec3f eye = polarToCartesian (camEyePolar);
@@ -269,10 +270,7 @@ void rayTrace ()
     cout << "eye = " << eye << endl;
     cout << "camTarget = " << camTarget << endl;
     
-    float verticalAngle = acos(-1) * 30 / 180;
-    float horizontalAngle = acos(-1) * 40 / 180;
-    
-    RaySource raySource(eye, camTarget, Vec3f(0, 10, 0), 200, verticalAngle, horizontalAngle, screenWidth, screenHeight);
+    RaySource raySource(eye, camTarget, screenWidth, screenHeight);
     raySource.exportToRGB(shapes, rayImage);
     cout << "DONE" << endl;
 }

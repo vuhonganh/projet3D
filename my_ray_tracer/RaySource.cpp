@@ -3,16 +3,15 @@
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
-RaySource::RaySource(Vec3f position, Vec3f lookAtPosition, Vec3f upVector,
-       float distanceToScreen, float verticalAngle, float horizontalAngle,
-       int resolutionWidth, int resolutionHeight)
+RaySource::RaySource(Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
+    this->verticalAngle = acos(-1) * 30 / 180;
+    this->horizontalAngle = acos(-1) * 40 / 180;
+    this->distanceToScreen = 200;
+    this->upVector = Vec3f(0.0f, 10.0f, 0.0f);
+    
     this->position = position;
     this->lookAtPosition = lookAtPosition;
-    this->upVector = upVector;
-    this->verticalAngle = verticalAngle;
-    this->horizontalAngle = horizontalAngle;
-    this->distanceToScreen = distanceToScreen;
     this->resolutionWidth = resolutionWidth;
     this->resolutionHeight = resolutionHeight;    
 }
@@ -34,7 +33,6 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
             alpha += step;
         else
             alpha -= step;
-        cout << i << ' ' << alpha << endl;
     }
     upVector = upVector + alpha * lookAtVector;
     
@@ -58,24 +56,13 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
             Vec3f yVec = yScreen * verticalVector;
             Vec3f direction = root + xVec + yVec - position;
             
-            if (xPixel == 0)
-            {
-//                DEBUG(xScreen);
-//                DEBUG(yScreen);
-//                DEBUG(xVec);
-//                DEBUG(yVec);
-//                cout << "(" << yPixel << ", " << xPixel << ") ";
-//                cout << xVec + yVec << endl;
-            }
-            
             Ray ray(position, direction);
             Vec3f brightness = ray.getBrightness(shapes, distanceToScreen);
             
             unsigned int index = 3*(xPixel+yPixel*resolutionWidth);
-//            rayImage[index] = rayImage[index+1] = rayImage[index+2] = grey;
+
             rayImage[index] = brightness[0] * 255;
             rayImage[index+1] = brightness[1] * 255;
             rayImage[index+2] = brightness[2] * 255;
-//            if (grey > 0) cout << xPixel << ' ' << yPixel << ' ' << grey << endl;
         }
 }
