@@ -85,18 +85,26 @@ void initOpenGL()
     glEnable (GL_COLOR_MATERIAL);
 }
 
+
+
 void computeSceneNormals()
 {
     for (unsigned int s = 0; s < shapes.size (); s++) 
         if (shapes[s].mesh.normals.empty ())
         {
             shapes[s].mesh.normals.resize (shapes[s].mesh.positions.size (), 0.f);
+
+            //mesh.indices.size() = nb de Vertices?
             for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
             {
                 Vec3f q[3];
                 for (size_t v = 0; v < 3; v++)
                 {
+                    //3*shapes... car on parcours tous les 3 dans un coup (3 elems pour un vertex)
+                    //(voir l'instruction suivante)
                     unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
+
+                    //q[v][i] represent la i-eme element de Vec3f q[v]
                     for (unsigned int i = 0; i < 3; i++)
                         q[v][i] = shapes[s].mesh.positions[index+i];
                 }
@@ -121,6 +129,47 @@ void computeSceneNormals()
             }
         }
 }
+
+void transferToMeshVT(int s, Mesh &meshVT)
+{
+    //précalcul les normales
+    computeSceneNormals();
+
+    //read vertices
+    size_t nbVertices = shapes[s].mesh.positions.size()/3;
+
+    meshVT.V.resize(nbVertices);
+
+    //trois elements consecutives forme un vertex
+    for(size_t i_Vertices = 0; i_Vertices < nbVertices; i_Vertices++)
+    {
+        Vec3f posi(shapes[s].mesh.positions[3 * i_Vertices],
+                   shapes[s].mesh.positions[3 * i_Vertices + 1],
+                   shapes[s].mesh.positions[3 * i_Vertices + 2]);
+
+        Vec3f normal(shapes[s].mesh.normals[3 * i_Vertices],
+                     shapes[s].mesh.normals[3 * i_Vertices + 1],
+                     shapes[s].mesh.normals[3 * i_Vertices + 2]);
+
+        Vertex curVert(posi, normal);
+        meshVT.V[i_Vertices] = curVert;
+    }
+
+    //read triangles (une triangle forme par 3 indices de vertices
+    size_t nbTriangles = shapes[s].mesh.indices.size()/3;
+
+    meshVT.T.resize(nbTriangles);
+
+    for(size_t i_Triangles = 0; i_Triangles < nbTriangles; i_Triangles++)
+    {
+        Triangle curTriang(shapes[s].mesh.indices[3 * i_Triangles],
+                           shapes[s].mesh.indices[3 * i_Triangles + 1],
+                           shapes[s].mesh.indices[3 * i_Triangles + 2]);
+        meshVT.T[i_Triangles] = curTriang;
+    }
+
+}
+
 
 void computeSceneBoundingSphere ()
 {
@@ -165,10 +214,10 @@ bool loadScene(const string & filename, const string & basepath = "") {
 
 void initCamera ()
 {
-    fovAngle = 45.f;
-    nearPlane = sceneRadius/10000.0f;
-    farPlane = 10*sceneRadius;
-    camTarget = sceneCenter;
+    fovAngle    = 45.f;
+    nearPlane   = sceneRadius/10000.0f;
+    farPlane    = 10*sceneRadius;
+    camTarget   = sceneCenter;
     camEyePolar = Vec3f (2.f * sceneRadius, M_PI/2.f, M_PI/2.f);
 }
 
@@ -176,11 +225,14 @@ void initLighting ()
 {
     lightPos = 2.f * Vec3f (sceneRadius, sceneRadius, sceneRadius);
     glEnable (GL_LIGHTING);
+
     GLfloat position[4] = {lightPos[0], lightPos[1], lightPos[2], 1.0f};
-    GLfloat color[4] = {lightColor[0], lightColor[1], lightColor[2], 1.0f};
+    GLfloat color[4]    = {lightColor[0], lightColor[1], lightColor[2], 1.0f};
+
     glLightfv (GL_LIGHT0, GL_POSITION, position);
     glLightfv (GL_LIGHT0, GL_DIFFUSE, color);
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
+
     glEnable (GL_LIGHT0);
 }
 
@@ -224,11 +276,20 @@ void reshape (int w, int h)
 
 void rasterize ()
 {
-    setupCamera ();   
+
+
+    setupCamera ();
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
     glBegin (GL_TRIANGLES);
     glColor3f (1.f, 1.f, 1.f);
     for (size_t s = 0; s < shapes.size (); s++)
+    {
+        ////////////Adding meshVT
+        Mesh meshVT;
+        transferToMeshVT(s, meshVT);
+
+        /////////////////
+
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
         {
             if (!materials.empty ())
@@ -237,17 +298,35 @@ void rasterize ()
                 unsigned int i = shapes[s].mesh.material_ids[f];
                 glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
             }
-            for (size_t v = 0; v < 3; v++)
-            {
-                unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-                glNormal3f (shapes[s].mesh.normals[index],
-                            shapes[s].mesh.normals[index+1],
-                            shapes[s].mesh.normals[index+2]);
-                glVertex3f (shapes[s].mesh.positions[index],
-                            shapes[s].mesh.positions[index+1],
-                            shapes[s].mesh.positions[index+2]);
-            }
+//            for (size_t v = 0; v < 3; v++)
+//            {
+//                unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
+//                glNormal3f (shapes[s].mesh.normals[index],
+//                            shapes[s].mesh.normals[index+1],
+//                            shapes[s].mesh.normals[index+2]);
+//                glVertex3f (shapes[s].mesh.positions[index],
+//                            shapes[s].mesh.positions[index+1],
+//                            shapes[s].mesh.positions[index+2]);
+
+//            }
+
+            //UNE AUTRE FACON DE DESSINER en UTILISANT data structure Mesh
+            Vertex v0 = meshVT.V[meshVT.T[f].v[0]];
+            Vertex v1 = meshVT.V[meshVT.T[f].v[1]];
+            Vertex v2 = meshVT.V[meshVT.T[f].v[2]];
+
+            glNormal3f(v0.n[0], v0.n[1], v0.n[2]);
+            glNormal3f(v1.n[0], v1.n[1], v1.n[2]);
+            glNormal3f(v2.n[0], v2.n[1], v2.n[2]);
+
+
+            glVertex3f(v0.p[0], v0.p[1], v0.p[2]);
+            glVertex3f(v1.p[0], v1.p[1], v1.p[2]);
+            glVertex3f(v2.p[0], v2.p[1], v2.p[2]);
+
+
         }
+    }
     glEnd ();
     glFlush (); // Ensures any previous OpenGL call has been executed
     glutSwapBuffers ();  // swap the render buffer and the displayed (screen) one
@@ -452,7 +531,7 @@ float BlinnPhong(Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f camPos,
 }
 
 
-void drawScene ()
+void drawScene (Mesh &mesh)
 {
   glBegin (GL_TRIANGLES);
   for (unsigned int i = 0; i < mesh.T.size (); i++) 
@@ -461,7 +540,8 @@ void drawScene ()
 	const Vertex & v = mesh.V[mesh.T[i].v[j]];
 	// EXERCISE : the following color response shall be replaced with a proper reflectance evaluation/shadow test/etc.
 	//	float color = Lambert(v);
-	float color = BlinnPhong(v, 10.0f);
+    //float color = BlinnPhong(v, 10.0f);
+    float color = 0.5f;
  	glColor3f (color, color, color);
 	
 	//	glNormal3f (v.n[0], v.n[1], v.n[2]); // Specifies current normal vertex   

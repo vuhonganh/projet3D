@@ -51,6 +51,7 @@ void Mesh::recomputeNormals ()
 {
     for (unsigned int i = 0; i < V.size (); i++)
         V[i].n = Vec3f (0.0, 0.0, 0.0);
+
     for (unsigned int i = 0; i < T.size (); i++)
     {
         Vec3f e01 = V[T[i].v[1]].p -  V[T[i].v[0]].p;
