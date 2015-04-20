@@ -216,14 +216,16 @@ void initCamera ()
 {
     fovAngle    = 45.f;
     nearPlane   = sceneRadius/10000.0f;
+    cout << "nearPlane = zNear = " << nearPlane << endl;
     farPlane    = 10*sceneRadius;
     camTarget   = sceneCenter;
-    camEyePolar = Vec3f (2.f * sceneRadius, M_PI/2.f, M_PI/2.f);
+    camEyePolar = Vec3f (2.f * sceneRadius, M_PI/2.f, M_PI/2.f);//setting up like this will make the problem simpler, as the frame coordinate of eye is just a translation of world coordiante
 }
 
 void initLighting ()
 {
     lightPos = 2.f * Vec3f (sceneRadius, sceneRadius, sceneRadius);
+    cout << "in initLighting, lightPos = " << lightPos << endl;
     glEnable (GL_LIGHTING);
 
     GLfloat position[4] = {lightPos[0], lightPos[1], lightPos[2], 1.0f};
@@ -254,7 +256,8 @@ void setupCamera ()
     glLoadIdentity ();
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
-    eye += camTarget;
+    cout << "in setupCamera, eye = " << eye << endl;
+    eye += camTarget; //to view eye in the frame coordinates of camTarget (here camTarget chosen is the sceneCenter)
     gluLookAt (eye[0], eye[1], eye[2], 
                camTarget[0], camTarget[1], camTarget[2], 
                0.0, 1.0, 0.0); // Set up the current modelview matrix with camera transform
@@ -265,6 +268,7 @@ void reshape (int w, int h)
     screenWidth = w;
     screenHeight = h;
     aspectRatio = static_cast<float>(w)/static_cast<float>(h);
+    cout << "aspect Ratio = " << aspectRatio << endl;
     glViewport (0, 0, (GLint)w, (GLint)h); // Dimension of the drawing region in the window
     setupCamera ();
     if (rayImage != NULL) 
@@ -345,41 +349,50 @@ void displayRayImage()
  f0 : reflection coeffient, plastic: 0.3-0.5, conductor around 0.9
  */
 
-float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0){
-    float distr_ggx,fresnel,g,f_s;
-    Vec3f w_h=w+w0;
+float brdf_GGX(Vec3f w, Vec3f w0, Vec3f n, float alpha, float f0)
+{
+    float distr_ggx, fresnel, g, f_s;
+    Vec3f w_h = w+w0;
     w_h.normalize();
     //distribution GGX
-    float alpha_2=alpha*alpha;
-    float nw_h=dot(n,w_h);
-    distr_ggx=alpha_2/(M_PI*pow(1+(alpha_2-1)*pow(nw_h,2),2));
+    float alpha_2 = alpha * alpha;
+    float nw_h    = dot(n, w_h);
+    distr_ggx     = alpha_2/(M_PI * pow(1 + (alpha_2 - 1)* pow(nw_h, 2), 2));
+
     //fresnel terme
-    fresnel=f0+(1-f0)*pow(1-fmax(0,nw_h),5);
+    fresnel   = f0 + (1 - f0) * pow(1 - fmax(0, nw_h), 5);
     //geometric term of GGX
-    float nw=dot(n,w);
+    float nw  = dot(n, w);
     
-    float nw0=dot(n,w0);
-    float g0,g1;
-    g0=2*nw0/(nw0+sqrt(alpha_2+(1-alpha_2)*nw0*nw0));
-    g1=2*nw/(nw+sqrt(alpha_2+(1-alpha_2)*nw*nw));
-    g=g0*g1;
+    float nw0 = dot(n, w0);
+
+    float g0, g1;
+    g0  = 2 * nw0/(nw0 + sqrt(alpha_2 + (1 - alpha_2) * nw0 * nw0));
+    g1  = 2 * nw/(nw + sqrt(alpha_2 + (1 - alpha_2) * nw * nw));
+    g   = g0 * g1;
     
-    f_s=distr_ggx*fresnel*g/(4*nw*nw0);
+    f_s = distr_ggx * fresnel * g/(4 * nw * nw0);
+
     return f_s;
 }
 
-float f_Lambert(float k_d){
-    float f_L;
-    f_L = k_d/M_PI;
+float f_Lambert(float k_d)
+{
+    float f_L = k_d/M_PI;
+
     return f_L;
 }
 
-float response_color(Vertex V,Vec3f w,Vec3f w0,float L_w,float alpha,float f0,float k_d){
-    float L_w0,f_s,f_d,f;
-    f_s=brdf_GGX(w,w0,V.n,alpha,f0);
-    f_d=f_Lambert(k_d);
-    f=f_d+f_s;
-    L_w0=L_w*f*dot(V.n,w);
+float response_color(Vertex V,Vec3f w,Vec3f w0,float L_w,float alpha,float f0,float k_d)
+{
+    float L_w0, f_s, f_d, f;
+
+    f_s  = brdf_GGX(w, w0, V.n, alpha, f0);
+    f_d  = f_Lambert(k_d);
+    f    = f_d + f_s;
+
+    L_w0 = L_w * f * dot(V.n, w);
+
     return L_w0;
 }
 
@@ -387,12 +400,50 @@ float response_color(Vertex V,Vec3f w,Vec3f w0,float L_w,float alpha,float f0,fl
 // MAIN FUNCTION TO CHANGE !
 void rayTrace ()
 {
+    //for each pixel, trace a ray from the camera through the pixel
+
+    //position of the camera equals the eye:
+    Vec3f eye = polarToCartesian (camEyePolar);
+    swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
+    cout << "in setupCamera, eye = " << eye << endl;
+    eye += camTarget; //to view eye in the frame coordinates of camTarget (here camTarget chosen is the sceneCenter)
+//    gluLookAt (eye[0], eye[1], eye[2],
+//               camTarget[0], camTarget[1], camTarget[2],
+//               0.0, 1.0, 0.0); // Set up the current modelview matrix with camera transform
+    Vec3f w(eye - camTarget);
+    w /= w.length();
+    Vec3f b(0.0, 1.0, 0.0); //up vector
+    Vec3f u = cross(b, w)/cross(b, w).length();
+    Vec3f v = cross(w, u);
+    //u, v, w form the coordinate of the virtual screen
+
     for (unsigned int i = 0; i < screenWidth; i++)
+    {
         for (unsigned int  j = 0; j < screenHeight; j++)
         {
-            unsigned int index = 3*(i+j*screenWidth);
-            rayImage[index] = rayImage[index+1] = rayImage[index+2] = 100;
+            //for each pixel, defines a direction:
+            float scaleFactor = 1.0f;
+
+            float fovX  = fovAngle/180.0 * M_PI;
+            float fovY  = fovX * aspectRatio;
+
+            float alpha = scaleFactor * tan(fovX / 2) * (2*i - screenWidth)/screenWidth;
+            float beta  = scaleFactor * tan(fovY / 2) * (screenHeight - 2*j)/screenHeight;
+
+            Vec3f dir = alpha * u + beta * v - w;
+            dir /= dir.length();
+
+            Ray ray(eye, dir);
+
+
+            unsigned int index = 3*(i + j*screenWidth);
+            rayImage[index] = rayImage[index + 1] = rayImage[index + 2] = 100;
+
+
+
+
         }
+    }
 }
 
 void display ()
@@ -444,14 +495,18 @@ void keyboard (unsigned char keyPressed, int x, int y)
 
 void mouse (int button, int state, int x, int y)
 {
-    if (button == GLUT_LEFT_BUTTON) {
-        if (state == GLUT_DOWN) {	
+    if (button == GLUT_LEFT_BUTTON)
+    {
+        if (state == GLUT_DOWN)
+        {
             mouseLeftButtonClicked = true;
             clickedX = x;
             clickedY = y;
             baseCamPhi = camEyePolar[1];
             baseCamTheta = camEyePolar[2];
-        } else {
+        }
+        else
+        {
             mouseLeftButtonClicked = false;
         }
     }
@@ -459,7 +514,8 @@ void mouse (int button, int state, int x, int y)
 
 void motion (int x, int y)
 {
-    if (mouseLeftButtonClicked == true) {
+    if (mouseLeftButtonClicked == true)
+    {
         camEyePolar[1] =  baseCamPhi  + (float (clickedY-y)/screenHeight) * M_PI;
         camEyePolar[2] = baseCamTheta + (float (x-clickedX)/screenWidth) * M_PI;
         glutPostRedisplay (); // calls the display function
@@ -488,6 +544,7 @@ void test_intersectSphere()
     else
         cout << "not intersect sphere" << endl;
 
+    //cout << "light pos = " << lightPos << endl;
 }
 
 void test()
@@ -568,6 +625,7 @@ int main (int argc, char ** argv)
         init (argv[1]); // Your initialization code (OpenGL states, geometry, material, lights, etc)
     else
         init (DEFAULT_SCENE_FILENAME);
+
     glutReshapeFunc (reshape); // Callback function executed whenever glut need to setup the projection matrix
     glutDisplayFunc (display); // Callback function executed when the window app need to be redrawn
     glutKeyboardFunc (keyboard); // Callback function executed when the keyboard is used

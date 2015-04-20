@@ -5,6 +5,7 @@
 #include "Vec3.h"
 #include <vector>
 #include <cmath>
+#include "Mesh.h"
 using namespace std;
 
 #define LIGHT_SOURCE_NORMAL 100
@@ -34,6 +35,7 @@ struct Ray
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f vectorDir = Vec3f(0.0, 1.0, 0.0));
     bool intersect(Vec3f * triangle, Vec3f &result);
 
+    bool raySceneIntersection(Mesh meshVT[], int nbObjs, float &minDist);
 
     //intersect_remake makes use of intersect2
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
