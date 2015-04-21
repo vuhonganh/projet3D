@@ -5,9 +5,9 @@
 
 RaySource::RaySource(Vec3f lightSource, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
-    this->verticalAngle = acos(-1) * 30 / 180;
-    this->horizontalAngle = acos(-1) * 40 / 180;
-    this->distanceToScreen = 200;
+    this->verticalAngle = acos(-1) * 45 * resolutionHeight / resolutionWidth / 180;
+    this->horizontalAngle = acos(-1) * 45 / 180;
+    this->distanceToScreen = 1.0;
     this->upVector = Vec3f(0.0f, 10.0f, 0.0f);
     
     this->lightSource = lightSource;
@@ -17,10 +17,11 @@ RaySource::RaySource(Vec3f lightSource, Vec3f position, Vec3f lookAtPosition, in
     this->resolutionHeight = resolutionHeight;    
 }
 
-void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned char * rayImage)
+void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, 
+                 const vector <tinyobj::material_t> &materials,
+                 unsigned char * rayImage)
 {
     //find root point
-    
     Vec3f lookAtVector = lookAtPosition - position;
     Vec3f root = position + lookAtVector * (distanceToScreen / lookAtVector.length());
     
@@ -42,11 +43,6 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
     Vec3f rightVector = cross(lookAtVector, upVector);
     Vec3f horizontalVector = rightVector * (distanceToScreen * tan(horizontalAngle) / rightVector.length());
     
-    DEBUG(root);
-    DEBUG(lookAtVector);
-    DEBUG(verticalVector);
-    DEBUG(horizontalVector);
-    
     //generate rays
     for (int yPixel = 0; yPixel < resolutionHeight; ++yPixel)
         for (int xPixel = 0; xPixel < resolutionWidth; ++xPixel)
@@ -58,12 +54,12 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned cha
             Vec3f direction = root + xVec + yVec - position;
             
             Ray ray(position, direction);
-            float color = ray.getColor(shapes, lightSource);
+            Vec3f color = ray.getColor(shapes, materials, lightSource);
             
             unsigned int index = 3*(xPixel+yPixel*resolutionWidth);
-
-            rayImage[index] = color * 255;
-            rayImage[index+1] = color * 255;
-            rayImage[index+2] = color * 255;
+            
+            rayImage[index] = color[0] * 255;
+            rayImage[index+1] = color[1] * 255;
+            rayImage[index+2] = color[2] * 255;
         }
 }

@@ -290,12 +290,12 @@ void rasterize ()
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
         {                  
-//            if (!materials.empty ())
-//            {
-//                // MAIN FUNCTION TO CHANGE !
-//                unsigned int i = shapes[s].mesh.material_ids[f];
-//                glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
-//            }
+            if (!materials.empty ())
+            {
+                // MAIN FUNCTION TO CHANGE !
+                unsigned int i = shapes[s].mesh.material_ids[f];
+                glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
+            }
             
             for (size_t v = 0; v < 3; v++)
             {
@@ -341,14 +341,8 @@ void rayTrace ()
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
-    cout << "eye = " << eye << endl;
-    cout << "camTarget = " << camTarget << endl;
-    
-//    RaySource raySource(Vec3f(0, 200, 0), eye, camTarget, screenWidth, screenHeight);
     RaySource raySource(lightSource, eye, camTarget, screenWidth, screenHeight);
-    
-    raySource.exportToRGB(shapes, rayImage);
-    cout << "DONE" << endl;
+    raySource.exportToRGB(shapes, materials, rayImage);
 }
 
 void display ()
