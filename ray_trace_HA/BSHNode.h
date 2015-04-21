@@ -13,7 +13,7 @@ class BSHNode
   void split(const std::vector<Vertex> &V, const std::vector<Triangle> &T);
   BSHNode();
 	
-  static const int TRIANGLES_PER_LEAF=3;
+  static const int TRIANGLES_PER_LEAF = 3;
 
   //ci-dessous sont des valeurs moyennes:
   Vec3f position;//position of the center of sphere
