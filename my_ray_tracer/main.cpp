@@ -289,7 +289,7 @@ void rasterize ()
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {                  
+        {
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
@@ -337,12 +337,31 @@ void displayRayImage()
 // MAIN FUNCTION TO CHANGE !
 void rayTrace ()
 {
+    //get camera's position
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
-    RaySource raySource(lightSource, eye, camTarget, screenWidth, screenHeight);
+//    vector <Vec3f> lightSources;
+//    float r = 100;
+//    float step = 100;
+//    float eps = step / 2;
+    
+//    for (float x = lightSource[0] - r; x <= lightSource[0] + r + eps; x += step)
+//        for (float z = lightSource[2] - r; z <= lightSource[2] + r + eps; z += step)
+//            lightSources.push_back(Vec3f(x, lightSource[1], z));
+
+    //create light sources
+    vector <Vec3f> lightSources;
+    lightSources.push_back(lightSource);
+    
+    RaySource raySource(lightSources, eye, camTarget, screenWidth, screenHeight);
+    
+    //export to array
     raySource.exportToRGB(shapes, materials, rayImage);
+    
+    //message
+    cout << "DONE" << endl;
 }
 
 void display ()

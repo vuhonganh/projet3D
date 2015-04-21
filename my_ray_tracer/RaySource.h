@@ -17,16 +17,15 @@ struct RaySource
     Vec3f position;
     Vec3f upVector;
     Vec3f lookAtPosition;
-    Vec3f lightSource;
     float verticalAngle;
     float horizontalAngle;
     float distanceToScreen;
     int resolutionWidth;
     int resolutionHeight;
-    vector <Ray> rays;
+    vector <Vec3f> lightSources;
     
     //methods
-    RaySource(Vec3f lightSource, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight);
+    RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight);
     
     void exportToRGB(const vector<tinyobj::shape_t> &shapes, 
                      const vector <tinyobj::material_t> &materials,

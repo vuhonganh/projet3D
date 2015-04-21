@@ -15,7 +15,7 @@ struct Ray
         
     //methods
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f direction = Vec3f(0.0, 0.0, -1.0));
-    pair <int, int> getNearestShape(const vector<tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle);
+    pair <int, int> getNearestTriangle(const vector<tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle);
     Vec3f getColor(const vector <tinyobj::shape_t> &shapes, 
                    const vector <tinyobj::material_t> &materials, 
                    Vec3f lightSource);
