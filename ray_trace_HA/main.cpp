@@ -396,11 +396,36 @@ float response_color(Vertex V,Vec3f w,Vec3f w0,float L_w,float alpha,float f0,fl
     return L_w0;
 }
 
+float Lambert (Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f sourceLight)
+{
+    Vec3f wi(sourceLight - posiPointSurface);
+    wi /= wi.length();
+
+    return dot(normalPointSurface, wi);
+}
+
+float BlinnPhong(Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f camPos, Vec3f sourceLight, float s)
+{
+    Vec3f wi(sourceLight - posiPointSurface);
+    Vec3f wo(camPos - posiPointSurface);
+    Vec3f wh(wi + wo);
+    wh /= wh.length();
+
+    return pow(dot(normalPointSurface, wh),s);
+}
+
 
 // MAIN FUNCTION TO CHANGE !
+//for each pixel, trace a ray from the camera through the pixel
 void rayTrace ()
 {
-    //for each pixel, trace a ray from the camera through the pixel
+    //prepare meshVT:
+    int nbObjs = shapes.size();
+    Mesh listMeshVT[nbObjs];
+    for (unsigned int s = 0; s < shapes.size (); s++)
+    {
+        transferToMeshVT(s, listMeshVT[s]);
+    }
 
     //position of the camera equals the eye:
     Vec3f eye = polarToCartesian (camEyePolar);
@@ -417,31 +442,57 @@ void rayTrace ()
     Vec3f v = cross(w, u);
     //u, v, w form the coordinate of the virtual screen
 
+    //seems correct this part
+    cout << " u = " << u << endl;
+    cout << " v = " << v << endl;
+    cout << " w = " << w << endl;
+    cout << "eye = " << eye << endl;
+    cout << "target = " << camTarget << endl;
+//    cout << screenWidth << endl;
+//    cout << screenHeight << endl;
+//    float abc;
+//    cin >> abc;
+    float H = (float) screenHeight;
+    float W = (float) screenWidth;
+
+
     for (unsigned int i = 0; i < screenWidth; i++)
     {
         for (unsigned int  j = 0; j < screenHeight; j++)
         {
             //for each pixel, defines a direction:
-            float scaleFactor = 1.0f;
+            float distToScr = nearPlane;
 
             float fovX  = fovAngle/180.0 * M_PI;
             float fovY  = fovX * aspectRatio;
-
-            float alpha = scaleFactor * tan(fovX / 2) * (2*i - screenWidth)/screenWidth;
-            float beta  = scaleFactor * tan(fovY / 2) * (screenHeight - 2*j)/screenHeight;
-
-            Vec3f dir = alpha * u + beta * v - w;
+            //cout << " tanFovx = " << tan(fovX/2) << endl;
+            float alpha = distToScr * tan(fovX / 2) * (2*i - W)/W;
+            float beta  = distToScr * tan(fovY / 2) * (H - 2*j)/H;
+//            float x = (float) (2*i - screenWidth)/screenWidth;
+//            float y = (2*i - 1024.0)/1024.0;
+//            cout << "(2*i - screenWidth)/screenWidth = " << x << endl;
+//            cout << " y = " << y << endl;
+            Vec3f PointAtScr = alpha * u + beta * v - distToScr * w + eye;
+            Vec3f dir(PointAtScr - eye);
             dir /= dir.length();
+            //cout << " i = " << i << ", j = " << j << ", alpha = " << alpha << "beta = " << beta << ", dir = " << dir << endl;
 
             Ray ray(eye, dir);
-
-
+            float minDist;
+            Vertex intersection;
+            float color = 0.5;
             unsigned int index = 3*(i + j*screenWidth);
-            rayImage[index] = rayImage[index + 1] = rayImage[index + 2] = 100;
 
-
-
-
+            if(ray.raySceneIntersection(listMeshVT, nbObjs, minDist, intersection))
+            {
+                color = BlinnPhong(intersection.p, intersection.n, eye, lightPos, 3.0);
+                rayImage[index] = rayImage[index + 1] = rayImage[index + 2] = color*255;
+            }
+            else
+            {
+                //cout << "i = " << i << ", j = " << j << ", NO intersect" << endl;
+                rayImage[index] = rayImage[index + 1] = rayImage[index + 2] = 255;
+            }
         }
     }
 }
@@ -561,31 +612,14 @@ void test()
     else
         cout << "intersect gives false" << endl;
 
-    Vec3f result2;
-    if (ray.intersect_remake(plane, result2))
-        cout << "intersect_remake gives result = " << result2 << endl;
+    Vertex result2;
+    float dist;
+    if (ray.intersect_remake(plane, result2, dist))
+        cout << "intersect_remake gives result = " << result2.p << endl;
     else
         cout << "intersect_remake gives false" << endl;
 }
 
-
-float Lambert (Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f sourceLight)
-{
-    Vec3f wi(sourceLight - posiPointSurface);
-    wi /= wi.length();
-
-    return dot(normalPointSurface, wi);
-}
-
-float BlinnPhong(Vec3f posiPointSurface, Vec3f normalPointSurface, Vec3f camPos, Vec3f sourceLight, float s)
-{
-    Vec3f wi(sourceLight - posiPointSurface);
-    Vec3f wo(camPos - posiPointSurface);
-    Vec3f wh(wi + wo);
-    wh /= wh.length();
-
-    return pow(dot(normalPointSurface, wh),s);
-}
 
 
 void drawScene (Mesh &mesh)

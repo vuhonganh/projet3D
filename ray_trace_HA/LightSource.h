@@ -35,14 +35,14 @@ struct Ray
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f vectorDir = Vec3f(0.0, 1.0, 0.0));
     bool intersect(Vec3f * triangle, Vec3f &result);
 
-    bool raySceneIntersection(Mesh meshVT[], int nbObjs, float &minDist);
+    bool raySceneIntersection(Mesh meshVT[], int nbObjs, float &minDist, Vertex &intersection);
 
     //intersect_remake makes use of intersect2
-    bool intersect_remake(Vec3f * triangle, Vec3f &result);
+    bool intersect_remake(Vec3f * triangle, Vertex &result, float &distance);
 
     //intersect2 is an atomic method
     //o is the position of the ray, w is its direction
-    bool intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result);
+    bool intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vertex &result, float &distance);
 
     //solve Mx + Ny = P, where M,N,P are Vec2f each
     bool solveLinear2(float M[], float N[], float P[], float result[]);

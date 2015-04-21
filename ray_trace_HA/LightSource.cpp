@@ -80,18 +80,57 @@ bool Ray::intersect(Vec3f * p, Vec3f &result)
     return false;
 }
 
-bool Ray::intersect_remake(Vec3f * triangle, Vec3f &result)
+bool Ray::raySceneIntersection(Mesh meshVT[], int nbObjs, float &minDist, Vertex &intersection)
+{
+    float d = 10000000; //10 million
+
+    bool intersect = false;
+    //for each object
+    for(int i = 0; i < nbObjs; i++)
+    {
+        Mesh curMeshVT = meshVT[i];
+        //for each triangle in the mesh of the object, check intersection
+        for(size_t k = 0; k < curMeshVT.T.size(); k++)
+        {
+            Triangle curTriang = curMeshVT.T[k];
+            Vec3f triangle[3];
+            triangle[0] = curMeshVT.V[curTriang.v[0]].p;
+            triangle[1] = curMeshVT.V[curTriang.v[1]].p;
+            triangle[2] = curMeshVT.V[curTriang.v[2]].p;
+//            cout << "triangle = " << triangle[0] << ", "
+//                                  << triangle[1] << ", "
+//                                  << triangle[2] << ", "<< endl;
+//            float stop;
+//            cin >> stop;
+            float curDist;
+            if(intersect_remake(triangle, intersection, curDist))
+            {
+                d = min(d, curDist);//change d to minimum
+                intersect = true;
+            }
+        }
+    }
+    minDist = (intersect)? d : minDist;
+    return intersect;
+}
+
+
+bool Ray::intersect_remake(Vec3f * triangle, Vertex &result, float &distance)
 {
     Vec3f o = this->position;
     Vec3f w = this->direction.toVector();
 
-    if(intersect2(triangle, o, w, result))
+    if(intersect2(triangle, o, w, result, distance))
+    {
+
         return true;
+    }
+
     return false;
 }
 
 //o is the point initial, w is the direction
-bool Ray::intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result)
+bool Ray::intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vertex &result, float &distance)
 {
     Vec3f A = triangleABC[0];
     Vec3f BA = triangleABC[1] - A;
@@ -107,7 +146,8 @@ bool Ray::intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result)
     Vec3f X = o + w*t;
     if (t > EPS)
     {
-
+        //co vao trong nay
+        //cout << "go into t > eps" << endl;
         float M[] = {dot(BA, BA), dot(BA,CA)};
         float N[] = {dot(BA, CA), dot(CA, CA)};
 
@@ -116,12 +156,19 @@ bool Ray::intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result)
         float resEq[2];
         if(solveLinear2(M, N, P, resEq))
         {
+            //co vao trong nay
+            //cout << "go into linear 2" << endl;
+//            cout << "resEq[0] = " << resEq[0] << endl;
+//            cout << "resEq[1] = " << resEq[1] << endl;
             if( (0 <= resEq[0]) && (resEq[0] <= 1) &&
                 (0 <= resEq[1]) && (resEq[1] <= 1) &&
                     resEq[0] + resEq[1] <= 1
               )
             {
-                result = X;
+                //ko chac co vao trong nay ko
+                cout << "has intersection with triangles" << endl;
+                result = Vertex(X, n);
+                distance = t;
                 return true;
             }
         }
