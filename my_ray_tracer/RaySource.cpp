@@ -5,11 +5,11 @@
 
 RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
-    this->verticalAngle = acos(-1) * 45 * resolutionHeight / resolutionWidth / 180;
-    this->horizontalAngle = acos(-1) * 45 / 180;
-    this->distanceToScreen = 1.0;
-    this->upVector = Vec3f(0.0f, 10.0f, 0.0f);
+    this->verticalAngle = acos(-1) * 45/ 180 / 2;
+    this->horizontalAngle = acos(-1) * 45 * resolutionWidth / resolutionHeight / 180 / 2;
+    this->upVector = Vec3f(0.0f, 1.0f, 0.0f);
     
+    this->distanceToScreen = 100;
     this->position = position;
     this->lookAtPosition = lookAtPosition;
     this->resolutionWidth = resolutionWidth;

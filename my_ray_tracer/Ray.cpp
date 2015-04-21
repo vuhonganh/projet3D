@@ -95,16 +95,16 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     normal.normalize();
     
     //calculate lightness
+    //GGX
     float lightness = response_color(intersection, lightSource, this->position, normal, 1.0, 0.5, 0.5, 1.0);
+    
+    //Blinn Phong
+//    float lightness = BlinnPhong(intersection, lightSource, this->position, normal, 3.0);
+
     return Vec3f(   materials[iMaterial].diffuse[0] * lightness, 
                     materials[iMaterial].diffuse[1] * lightness,
                     materials[iMaterial].diffuse[2] * lightness);
     
-////    Blinn Phong
-//    Vec3f normal = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
-//    normal.normalize();
-    
-//    return BlinnPhong(intersection, lightSource, this->position, normal, 0.5);
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?
