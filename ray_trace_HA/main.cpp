@@ -301,6 +301,11 @@ void rasterize ()
                 // MAIN FUNCTION TO CHANGE !
                 unsigned int i = shapes[s].mesh.material_ids[f];
                 glColor3f (materials[i].diffuse[0], materials[i].diffuse[1], materials[i].diffuse[2]);
+//                cout << materials[i].diffuse[0] << " = materials[i].diffuse[0], " << endl;
+//                cout << materials[i].diffuse[1] << " = materials[i].diffuse[1], " << endl;
+//                cout << materials[i].diffuse[2] << " = materials[i].diffuse[2], " << endl;
+//                float s;
+//                cin >> s;
             }
 //            for (size_t v = 0; v < 3; v++)
 //            {
