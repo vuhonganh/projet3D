@@ -45,38 +45,47 @@ pair <int, int> Ray::getNearestShape(const vector<tinyobj::shape_t> &shapes, pai
     else return result;
 }
 
-float Ray::getColor(const vector <tinyobj::shape_t> &shapes, Vec3f lightSource)
+Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes, 
+               const vector <tinyobj::material_t> &materials, 
+               Vec3f lightSource)
 {
     pair <int, int> sh = this->getNearestShape(shapes, make_pair(-1, -1));
-    if (sh.first == -1) return 0;
+    if (sh.first == -1) return Vec3f(0.0, 0.0, 0.0);
     Vec3f triangle[3];
     getTriangleFromShape(shapes, sh.first, sh.second, triangle);
     
     Vec3f intersection;
     this->intersect_remake(triangle, intersection);
     
-//    Ray reflectedRay(intersection, lightSource - intersection);
-//    pair <int, int> tempSh = reflectedRay.getNearestShape(shapes, sh);
-//    if (tempSh.first != -1)
-//    {
-//        Vec3f tempTriangle[3];
-//        getTriangleFromShape(shapes, tempSh.first, tempSh.second, tempTriangle);
+    ////check reflected ray
+    Ray reflectedRay(intersection, lightSource - intersection);
+    pair <int, int> tempSh = reflectedRay.getNearestShape(shapes, sh);
+    if (tempSh.first != -1)
+    {
+        Vec3f tempTriangle[3];
+        getTriangleFromShape(shapes, tempSh.first, tempSh.second, tempTriangle);
         
-//        Vec3f tempIntersection;
-//        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
-//        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
-//            return 0;
-//    }
+        Vec3f tempIntersection;
+        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
+        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
+            return Vec3f(0.0, 0.0, 0.0);
+    }
     
-    Vec3f wi = intersection - position;
-    Vec3f wo = lightSource - intersection;
-    Vec3f n = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
-//    Vec3f n = cross(triangle[0] - triangle[1], triangle[0] - triangle[2]);
-        
-    n.normalize();
+    Vec3f normal = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
+    normal.normalize();
     
-//    return response_color(wi, wo, n, 1.0, 0.5, 0.8, 1.0);
-    return BlinnPhong(intersection, n, lightSource, position, 1);
+    float lightness = response_color(intersection, lightSource, this->position, normal, 1.0, 0.5, 0.5, 1.0);
+    
+    unsigned int iMaterial = shapes[sh.first].mesh.material_ids[sh.second];
+    return Vec3f(   materials[iMaterial].diffuse[0] * lightness, 
+                    materials[iMaterial].diffuse[1] * lightness,
+                    materials[iMaterial].diffuse[2] * lightness);
+    
+////    Blinn Phong
+//    Vec3f normal = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
+//    normal.normalize();
+    
+//    return BlinnPhong(intersection, lightSource, this->position, normal, 0.5);
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?

@@ -28,7 +28,9 @@ struct RaySource
     //methods
     RaySource(Vec3f lightSource, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight);
     
-    void exportToRGB(const vector<tinyobj::shape_t> &shapes, unsigned char * rayImage);
+    void exportToRGB(const vector<tinyobj::shape_t> &shapes, 
+                     const vector <tinyobj::material_t> &materials,
+                     unsigned char * rayImage);
 };
 
 #endif // RAYSOURCE_H
