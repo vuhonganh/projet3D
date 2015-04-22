@@ -44,7 +44,7 @@ struct Ray
     //given a triangle and 2 points X and Y in space
     //check if the segment XY cut the triangle plane or not
     //NOTE: intersection MUST be in MEDIUM of the line
-    bool lineCutTriPlane(Vec3f * triangle, Vec3f X, Vec3f Y);
+    bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y);
 
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
