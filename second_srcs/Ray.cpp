@@ -189,10 +189,16 @@ bool Ray::lineCutTriPlane(Vec3f * triangle, Vec3f X, Vec3f Y)
     n /= n.length();
 
     //A point P lies in the plane ABC is: (P-A).n = 0
-    //with P = A + (AB).t, where t is the legth along direction AB
-    //TO CHANGE
-    float t = (dot(A,n) - dot(o,n))/(dot(w,n));
-    Vec3f X = o + w*t;
+    //with P = tX + (1-t)Y, where t is the length along direction XY
+    //il revient a trouver t qui satisfait: t*dot((X-Y),n) = dot((A-Y),n)
+
+    if(fabs(dot(X-Y, n)) > EPS)
+    {
+        float t = dot(A-Y, n) / (dot(X-Y,n));
+        if(t > EPS && t < 1.0 + EPS)
+            return true;
+    }
+    return false;
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?
