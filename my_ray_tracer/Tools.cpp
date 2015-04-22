@@ -39,12 +39,12 @@ float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,
     Vec3f n = getNormal(triangle);
     n.normalize();
     
-    float L_w0,f_s,f_d,f;
-    f_s=brdf_GGX(w,w0,n,alpha,f0);
-    f_d=f_Lambert(k_d);
-    f=f_d+f_s;
+    float L_w0, f_s, f_d, f;
+    f_s = brdf_GGX(w, w0, n, alpha, f0);
+    f_d = f_Lambert(k_d);
+    f = f_d + f_s;
     
-    L_w0=L_w*f*dot(n,w);
+    L_w0 = L_w * f * dot(n, w);
     return L_w0;
 }
 

@@ -25,8 +25,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 640;
-static const unsigned int DEFAULT_SCREENHEIGHT = 480;
+static const unsigned int DEFAULT_SCREENWIDTH = 400;
+static const unsigned int DEFAULT_SCREENHEIGHT = 300;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -330,7 +330,8 @@ void rasterize ()
     
     lightSource /= 3;
     glSphere(100, 100, 100, 20);
-    lightSource[1] -= 10;
+    lightSource[1] -= 30;
+    lightSource = Vec3f(300, 518, 250);
     glSphere(lightSource[0], lightSource[1], lightSource[2], 40);
     
     glEnd ();
@@ -357,10 +358,9 @@ void rayTrace ()
     eye += camTarget;
     
     //create multiple light sources
-    
 //    vector <Vec3f> lightSources;
-//    float r = 10;
-//    float step = 10;
+//    float r = 5;
+//    float step = 1;
 //    float eps = step / 2;
     
 //    for (float x = lightSource[0] - r; x <= lightSource[0] + r + eps; x += step)

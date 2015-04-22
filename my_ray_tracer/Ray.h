@@ -9,8 +9,8 @@
 using namespace std;
 
 #define EPS 0.000001
-#define NUMBER_OF_RAYS 32
-#define MAX_DEPTH 1
+static int NUMBER_OF_RAYS = 64;
+static int MAX_DEPTH = 1;
 
 struct Ray
 {
@@ -43,6 +43,8 @@ struct Ray
     //generer nbRays nouvelles rayons qui sorte de facon aleatoire
     vector<Ray> getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int depth, int NbRays = 32);
     vector<Ray> getRandomRaysOut_Test(Vec3f intersection, Vec3f * triangle, int depth, int NbRays = 32);
+    
+    Ray getRandomRays(Vec3f intersection, Vec3f * triangle, int depth);
     
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);

@@ -108,6 +108,7 @@ pair <int, int> Ray::getIntersectTriangle(const vector <tinyobj::shape_t> &shape
                          Vec3f * triangle)
 {
     pair <int, int> shapeId = this->getNearestTriangle_KDTree(shapes, exceptionTriangle);
+//    pair <int, int> shapeId = this->getNearestTriangle_BruteForce(shapes, exceptionTriangle);
     if (shapeId.first == -1) return make_pair(-1, -1);
     
     getTrianglePositionFromShape(shapes, shapeId.first, shapeId.second, triangle);
@@ -172,26 +173,21 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     Vec3f color_indirect(0.0, 0.0, 0.0);
     if (depth <= MAX_DEPTH)
     {
-        vector <Ray> rays = this->getRandomRaysOut(intersection, triangle, depth + 1, NUMBER_OF_RAYS);
+//        vector <Ray> rays = this->getRandomRaysOut(intersection, triangle, depth + 1, NUMBER_OF_RAYS);
 //        cout << "rays.size() = " << rays.size() << endl;
-//        vector <Ray> rays = this->getRandomRaysOut_Test(intersection, triangle, depth - 1, NUMBER_OF_RAYS);
         
         int counter = 0;
-        for (Ray ray: rays)
+        for (int iRay = 0; iRay < NUMBER_OF_RAYS; ++iRay)
         {
+            Ray ray = this->getRandomRays(intersection, triangle, depth + 1);
+            
             Vec3f color = ray.getColor(shapes, materials, lightSource);
-            if (color[0] < EPS && color[1] < EPS && color[2] < EPS) continue;
-            
-            Vec3f w = ray.direction;
-            Vec3f wo = this->position - intersection;
-            w.normalize();
-            wo.normalize();
-            Vec3f n = getNormal(triangle);
-            
-            float brdf = brdf_GGX(w, wo, n, 0.5, 0.5);
+            ray.direction.normalize();
+//            float cos_theta = dot(ray.direction, getNormal(triangle));
+//            float BRDF = 2 * cos_theta;
+            color_indirect += color;
             
             counter++;
-            color_indirect += (color * brdf);
         }
         
         if (counter > 0) 
@@ -335,26 +331,49 @@ vector<Ray> Ray::getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int dept
 
     //find a unit vector in the plane
     Vec3f ex(triangle[0] - intersection);
-    ex /= ex.length();
+    ex.normalize();
 
     //another unit vector in the plane to forme a local coordiante
     Vec3f ey = cross(n, ex);
+    ey.normalize();
 
     vector<Ray> rayOuts;
 
     for(int i = 0; i < NbRays; i++)
     {
-        float xComponent     = getRandomFloat(-1.0, 1.0);
-        float yComponent     = getRandomFloat(-1.0, 1.0);
+        float xComponent = getRandomFloat(-1.0, 1.0);
+        float yComponent = getRandomFloat(-1.0, 1.0);
         float normalComponent = getRandomFloat(0.0, 1.0);
 
         Vec3f dirOut(xComponent * ex + yComponent * ey + normalComponent * n);
-        dirOut /= dirOut.length();
+        dirOut.normalize();
 
         rayOuts.push_back(Ray(intersection, dirOut, this->bshRoot, depth));
     }
 
     return rayOuts;
+}
+
+Ray Ray::getRandomRays(Vec3f intersection, Vec3f * triangle, int depth)
+{
+    Vec3f n = getNormal(triangle);
+
+    //find a unit vector in the plane
+    Vec3f ex(triangle[0] - intersection);
+    ex.normalize();
+
+    //another unit vector in the plane to forme a local coordiante
+    Vec3f ey = cross(n, ex);
+    ey.normalize();
+    
+    float xComponent = getRandomFloat(-1.0, 1.0);
+    float yComponent = getRandomFloat(-1.0, 1.0);
+    float normalComponent = getRandomFloat(0.2, 1.0);
+
+    Vec3f dirOut(xComponent * ex + yComponent * ey + normalComponent * n);
+    dirOut.normalize();
+    
+    return Ray(intersection, dirOut, bshRoot, depth);
 }
 
 vector<Ray> Ray::getRandomRaysOut_Test(Vec3f intersection, Vec3f * triangle, int depth, int NbRays)
