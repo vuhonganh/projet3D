@@ -36,7 +36,6 @@ struct Ray
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
     bool intersect2(Vec3f * triangleABC, Vec3f &o, Vec3f &w, Vec3f &result);
     bool intersect_sphere(Vec3f center, float radius);
-    
 
     //solve Mx + Ny = P, where M,N,P are Vec2f each
     bool solveLinear2(float M[], float N[], float P[], float result[]);

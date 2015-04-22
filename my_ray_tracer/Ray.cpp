@@ -113,12 +113,11 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     pair <int, int> shapeId = this->getNearestTriangle(shapes, bshRoot, make_pair(-1, -1));
     if (shapeId.first == -1) return Vec3f(0.0, 0.0, 0.0);
     
-    //get index of its material (for the color after)
-    unsigned int iMaterial = shapes[shapeId.first].mesh.material_ids[shapeId.second];
-    
     //get triangle that intersect the ray
     Vec3f triangle[3];
     getTrianglePositionFromShape(shapes, shapeId.first, shapeId.second, triangle);
+    
+    //check if position and lightsource are in different sides of the triangle
     
     //calculate intersection
     Vec3f intersection;
@@ -155,8 +154,10 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     float lightness = response_color(intersection, lightSource, this->position, normal, 1.0, 0.5, 0.5, 1.0);
     
     //Blinn Phong
-//    float lightness = BlinnPhong(intersection, lightSource, this->position, normal, 3.0);
+//    float lightness = BlinnPhong(intersection, lightSource, this->position, normal, 2.0);
 
+    //get index of its material (for the color after)
+    unsigned int iMaterial = shapes[shapeId.first].mesh.material_ids[shapeId.second];
     return Vec3f(   materials[iMaterial].diffuse[0] * lightness, 
                     materials[iMaterial].diffuse[1] * lightness,
                     materials[iMaterial].diffuse[2] * lightness);

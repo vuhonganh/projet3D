@@ -25,8 +25,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 800;
-static const unsigned int DEFAULT_SCREENHEIGHT = 600;
+static const unsigned int DEFAULT_SCREENWIDTH = 1024;
+static const unsigned int DEFAULT_SCREENHEIGHT = 700;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -299,7 +299,7 @@ void rasterize ()
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {
+        {            
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
@@ -376,6 +376,7 @@ void rayTrace ()
     
     //message
     printf("%.3lf\n", double(end - begin) / CLOCKS_PER_SEC);
+    cout << "lightSource = " << lightSource << endl;
 }
 
 void display ()
