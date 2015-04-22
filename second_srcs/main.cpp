@@ -455,8 +455,21 @@ void idle ()
 {
 }
 
+void testRandomFloat()
+{
+    float min = -1.0;
+    float max = 1.0;
+
+    for(int i = 0; i < 50; i++)
+    {
+        float a = getRandomFloat(min, max);
+        cout << a << endl;
+    }
+}
+
 int main (int argc, char ** argv)
 {
+
     glutInit (&argc, argv); // Initialize a glut app
     glutInitDisplayMode (GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE); // Setup a RGBA framebuffer to display, with a depth buffer (z-buffer), in double buffer mode (fill a buffer then update the screen)
     glutInitWindowSize (DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT); // Set the window app size on screen

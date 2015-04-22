@@ -81,6 +81,29 @@ float toRad(float x)
     return acos(-1.0) * x / 180;
 }
 
+Vec3f getNormal(Vec3f * triangle)
+{
+    Vec3f A = triangle[0];
+    Vec3f BA = triangle[1] - A;
+    Vec3f CA = triangle[2] - A;
+
+    //vector normal of the plane ABC:
+    Vec3f n = cross(BA, CA);
+    n /= n.length();
+    return n;
+}
+
+float getRandomFloat(float min, float max)
+{
+    // this  function assumes max > min
+
+    float random = ((float) rand()) / (float) RAND_MAX;
+
+    float range = max - min;
+    return (random*range) + min;
+}
+
+
 //Vec3f RGBtoHSL(Vec3f rgb)
 //{
 //    float Cmax = max(max(rgb[0], rgb[1]), rgb[2]);
