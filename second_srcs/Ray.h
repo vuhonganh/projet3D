@@ -13,7 +13,7 @@ struct Ray
     //elements
     Vec3f position;
     Vec3f direction;
-        
+  
     //methods
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f direction = Vec3f(0.0, 0.0, -1.0));
     
@@ -35,6 +35,9 @@ struct Ray
     //a partir de la rayon qui vient, l'intersection avec la triangle
     //generer nbRays nouvelles rayons qui sorte de facon aleatoire
     vector<Ray> getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays = 32);
+
+    //get the rays out inside the cone of half-angle (wi, n), around the normal vector n
+    vector<Ray> getInConeRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays = 32);
 
     //given a triangle and 2 points X and Y in space
     //check if the segment XY cut the triangle plane or not
