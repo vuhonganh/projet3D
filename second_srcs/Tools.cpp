@@ -30,8 +30,13 @@ float f_Lambert(float k_d){
     return f_L;
 }
 
-//float response_color(Vec3f w,Vec3f w0, Vec3f n, float L_w,float alpha,float f0,float k_d)
-float response_color(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f n, float L_w,float alpha,float f0,float k_d)
+//alpha = 1 - shiness (Ns)
+//ior = Ni
+//Ka = ambience
+//Kd = diffuse
+//Ks = specular
+//float response_color(Vec3f w,Vec3f w0, Vec3f n, float L_w, float alpha, float f0, float k_d)
+float response_color(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f n, float L_w,float alpha = 0.5,float f0 = 0.5,float k_d = 1.0)
 {
     Vec3f w(source - vertex);
     Vec3f w0(camPos - vertex);
@@ -39,10 +44,14 @@ float response_color(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f n, float L_
     w0.normalize();
     
     float L_w0,f_s,f_d,f;
-    f_s=brdf_GGX(w,w0,n,alpha,f0);
-    f_d=f_Lambert(k_d);
-    f=f_d+f_s;
-    L_w0=L_w*f*dot(n,w);
+    f_s  = brdf_GGX(w,w0,n,alpha,f0);
+
+    f_d  = f_Lambert(k_d);
+
+    f    = f_d + f_s;
+
+    L_w0 = L_w * f * dot(n,w);
+
     return L_w0;
 }
 
@@ -52,18 +61,6 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal)
     
     wi /= wi.length();
     return dot(normal, wi); 
-}
-
-void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle)
-{
-    for (size_t v = 0; v < 3; v++)
-    {
-        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-        
-        triangle[v] = Vec3f(shapes[s].mesh.positions[index],
-                            shapes[s].mesh.positions[index+1],
-                            shapes[s].mesh.positions[index+2]);
-    }
 }
 
 float BlinnPhong(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f normal, float s)

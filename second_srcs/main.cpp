@@ -19,6 +19,8 @@
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "RaySource.h"
+#include "BSHNode.h"
+#include <ctime>
 
 using namespace std;
 
@@ -41,7 +43,7 @@ static Vec3f camEyePolar; // Expressing the camera position in polar coordinate,
 static Vec3f camTarget;
 
 // Scene elements
-static Vec3f lightPos = Vec3f (1.f, 1.f, 1.f);
+static Vec3f lightPos =Vec3f (0.f, 0.8f, 1.f); //Vec3f (1.f, 1.f, 1.f);
 static Vec3f lightColor = Vec3f (1.f, 1.f, 1.f);
 static Vec3f sceneCenter = Vec3f (0.f, 0.f, 0.f);
 static float sceneRadius = 1.f;
@@ -56,6 +58,7 @@ static float baseCamTheta;
 
 // Raytraced image
 static unsigned char * rayImage = NULL;
+BSHNode * bshRoot;
 
 void printUsage ()
 {
@@ -191,6 +194,13 @@ void init (const string & filename)
     loadScene (filename, filename.substr (0, i+1));
     initCamera ();
     initLighting ();
+    
+    vector <pair <int, int> > triangleIds;
+    for (size_t s = 0; s < shapes.size(); s++)
+        for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
+            triangleIds.push_back(make_pair(s, f));
+    
+    bshRoot = new BSHNode(shapes, triangleIds);
 }
 
 void setupCamera ()
@@ -278,7 +288,7 @@ void  glSphere(float xc, float yc, float zc, float radius)
   glPopMatrix();
 }
 
-Vec3f lightSource(1.0f, 1.0f, 1.0f);
+Vec3f lightSource(1.0f, 0.80f, 0.80f);
 void rasterize ()
 {
     setupCamera ();   
@@ -289,7 +299,7 @@ void rasterize ()
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {                  
+        {
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
@@ -300,9 +310,10 @@ void rasterize ()
             for (size_t v = 0; v < 3; v++)
             {
                 unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-                glNormal3f (shapes[s].mesh.normals[index],
-                            shapes[s].mesh.normals[index+1],
-                            shapes[s].mesh.normals[index+2]);
+                glNormal3f(shapes[s].mesh.normals[index],
+                           shapes[s].mesh.normals[index+1],
+                           shapes[s].mesh.normals[index+2]);
+
                 glVertex3f (shapes[s].mesh.positions[index],
                             shapes[s].mesh.positions[index+1],
                             shapes[s].mesh.positions[index+2]);
@@ -337,12 +348,35 @@ void displayRayImage()
 // MAIN FUNCTION TO CHANGE !
 void rayTrace ()
 {
+    clock_t begin = clock();
+    
+    //get camera's position
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
-    RaySource raySource(lightSource, eye, camTarget, screenWidth, screenHeight);
-    raySource.exportToRGB(shapes, materials, rayImage);
+//    vector <Vec3f> lightSources;
+//    float r = 100;
+//    float step = 100;
+//    float eps = step / 2;
+    
+//    for (float x = lightSource[0] - r; x <= lightSource[0] + r + eps; x += step)
+//        for (float z = lightSource[2] - r; z <= lightSource[2] + r + eps; z += step)
+//            lightSources.push_back(Vec3f(x, lightSource[1], z));
+
+    //create light sources
+    vector <Vec3f> lightSources;
+    lightSources.push_back(lightSource);
+    
+    RaySource raySource(lightSources, eye, camTarget, screenWidth, screenHeight);
+    
+    //export to array
+    raySource.exportToRGB(shapes, materials, bshRoot, rayImage);
+    
+    clock_t end = clock();
+    
+    //message
+    printf("%.3lf\n", double(end - begin) / CLOCKS_PER_SEC);
 }
 
 void display ()
@@ -439,5 +473,7 @@ int main (int argc, char ** argv)
     glutIdleFunc (idle); // Callback function executed continuously when no other event happens (good for background procesing or animation for instance).
     printUsage (); // By default, display the usage help of the program   
     glutMainLoop ();
+    
+    delete bshRoot;
     return 0;
 }
