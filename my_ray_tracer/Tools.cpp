@@ -82,7 +82,6 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
     Vec3f BA = triangle[1] - A;
     Vec3f CA = triangle[2] - A;
 
-<<<<<<< HEAD
 //Vec3f HSLtoRGB(Vec3f hsl)
 //{
 //    float angle60 = acos(-1.0) * 60 / 180;
@@ -112,7 +111,7 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
 //    rgb += Vec3f(m, m, m);
 //    return rgb;
 //}
-=======
+   
     //vector normal of the plane ABC:
     Vec3f n = cross(BA, CA);
     n /= n.length();
@@ -151,4 +150,5 @@ float getRandomFloat(float min, float max)
     float range = max - min;
     return (random*range) + min;
 }
->>>>>>> origin/master
+
+

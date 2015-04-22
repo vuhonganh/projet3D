@@ -1,4 +1,6 @@
 #include "RaySource.h"
+#include "Tools.h"
+
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
