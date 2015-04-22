@@ -1,6 +1,6 @@
 #ifndef RAYSOURCE_H
 #define RAYSOURCE_H
-#define EPS 0.00001
+
 
 #include "Vec3.h"
 #include <vector>

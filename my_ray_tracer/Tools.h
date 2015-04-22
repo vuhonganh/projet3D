@@ -15,6 +15,9 @@ float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0);
 float f_Lambert(float k_d);
 
 <<<<<<< HEAD
+
+=======
+>>>>>>> origin/master
 float rcolor(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f n, float L_w,float alpha,float f0,float k_d);
 
 inline float brdf(Vec3f wi, Vec3f wo, Vec3f n,float alpha,float f0,float k_d){
@@ -36,6 +39,10 @@ inline float randomPhi(){
 //inline Vec3f newRandomRay(const Vec3f &normal, float &phi,float &theta){
 
 //}
+
+<<<<<<< HEAD
+
+float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,float alpha,float f0,float k_d);
 
 =======
 float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,float alpha,float f0,float k_d);

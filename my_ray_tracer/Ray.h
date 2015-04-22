@@ -8,9 +8,9 @@
 #include "BSHNode.h"
 using namespace std;
 
-#define EPS 0.000001
-static int NUMBER_OF_RAYS = 64;
-static int MAX_DEPTH = 1;
+//#define EPS 0.000001
+//static int NUMBER_OF_RAYS = 64;
+//static int MAX_DEPTH = 1;
 
 struct Ray
 {
