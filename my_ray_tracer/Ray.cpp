@@ -1,5 +1,8 @@
 #include "Ray.h"
 
+static int NUMBER_OF_RAYS = 64;
+static int MAX_DEPTH = 1;
+
 Ray::Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth)
 {
     this->position = position;
