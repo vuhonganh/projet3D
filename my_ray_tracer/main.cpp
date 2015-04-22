@@ -354,9 +354,11 @@ void rayTrace ()
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
+    //create multiple light sources
+    
 //    vector <Vec3f> lightSources;
-//    float r = 100;
-//    float step = 100;
+//    float r = 10;
+//    float step = 10;
 //    float eps = step / 2;
     
 //    for (float x = lightSource[0] - r; x <= lightSource[0] + r + eps; x += step)

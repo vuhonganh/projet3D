@@ -72,6 +72,29 @@ float toRad(float x)
     return acos(-1.0) * x / 180;
 }
 
+bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
+{
+    Vec3f A = triangle[0];
+    Vec3f BA = triangle[1] - A;
+    Vec3f CA = triangle[2] - A;
+
+    //vector normal of the plane ABC:
+    Vec3f n = cross(BA, CA);
+    n /= n.length();
+
+    //A point P lies in the plane ABC is: (P-A).n = 0
+    //with P = tX + (1-t)Y, where t is the length along direction XY
+    //il revient a trouver t qui satisfait: t*dot((X-Y),n) = dot((A-Y),n)
+
+    if(fabs(dot(X-Y, n)) > EPS)
+    {
+        float t = dot(A-Y, n) / (dot(X-Y,n));
+        if(t > EPS && t < 1.0 + EPS)
+            return true;
+    }
+    return false;
+}
+
 //Vec3f RGBtoHSL(Vec3f rgb)
 //{
 //    float Cmax = max(max(rgb[0], rgb[1]), rgb[2]);

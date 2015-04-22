@@ -13,6 +13,7 @@ struct Ray
     //elements
     Vec3f position;
     Vec3f direction;
+    int depth;
         
     //methods
     Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f direction = Vec3f(0.0, 0.0, -1.0));
@@ -23,9 +24,13 @@ struct Ray
                                             pair <int, int> &resultIndex,
                                             float &resultDistance);
     
-    pair <int, int> getNearestTriangle(const vector <tinyobj::shape_t> &shapes,
+    pair <int, int> getNearestTriangle_KDTree(const vector <tinyobj::shape_t> &shapes,
                                        BSHNode * node,
                                        pair <int, int> exceptionTriangle);
+    
+    pair <int, int> getNearestTriangle_BruteForce(const vector <tinyobj::shape_t> &shapes,
+                                            BSHNode * node,
+                                            pair <int, int> exceptionTriangle);
     
     Vec3f getColor(const vector <tinyobj::shape_t> &shapes, 
                    const vector <tinyobj::material_t> &materials, 
