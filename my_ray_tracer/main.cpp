@@ -19,12 +19,14 @@
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "RaySource.h"
+#include "BSHNode.h"
+#include <ctime>
 
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 1024;
-static const unsigned int DEFAULT_SCREENHEIGHT = 800;
+static const unsigned int DEFAULT_SCREENWIDTH = 640;
+static const unsigned int DEFAULT_SCREENHEIGHT = 480;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 //"scenes/cube/cube.obj";
 //"scenes/mitsuba/mitsuba-sphere.obj";
@@ -58,6 +60,7 @@ static float baseCamTheta;
 
 // Raytraced image
 static unsigned char * rayImage = NULL;
+BSHNode * bshRoot;
 
 void printUsage ()
 {
@@ -193,6 +196,15 @@ void init (const string & filename)
     loadScene (filename, filename.substr (0, i+1));
     initCamera ();
     initLighting ();
+    
+    vector <pair <int, int> > triangleIds;
+    for (size_t s = 0; s < shapes.size(); s++)
+        for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
+            triangleIds.push_back(make_pair(s, f));
+    
+    bshRoot = new BSHNode(shapes, triangleIds);
+    
+    srand(time(NULL));
 }
 
 void setupCamera ()
@@ -291,7 +303,7 @@ void rasterize ()
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {
+        {            
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
@@ -339,14 +351,18 @@ void displayRayImage()
 // MAIN FUNCTION TO CHANGE !
 void rayTrace ()
 {
+    clock_t begin = clock();
+    
     //get camera's position
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
+    //create multiple light sources
+    
 //    vector <Vec3f> lightSources;
-//    float r = 100;
-//    float step = 100;
+//    float r = 10;
+//    float step = 10;
 //    float eps = step / 2;
     
 //    for (float x = lightSource[0] - r; x <= lightSource[0] + r + eps; x += step)
@@ -360,10 +376,13 @@ void rayTrace ()
     RaySource raySource(lightSources, eye, camTarget, screenWidth, screenHeight);
     
     //export to array
-    raySource.exportToRGB(shapes, materials, rayImage);
+    raySource.exportToRGB(shapes, materials, bshRoot, rayImage);
+    
+    clock_t end = clock();
     
     //message
-    cout << "DONE" << endl;
+    printf("%.3lf\n", double(end - begin) / CLOCKS_PER_SEC);
+    cout << "lightSource = " << lightSource << endl;
 }
 
 void display ()
@@ -460,5 +479,7 @@ int main (int argc, char ** argv)
     glutIdleFunc (idle); // Callback function executed continuously when no other event happens (good for background procesing or animation for instance).
     printUsage (); // By default, display the usage help of the program   
     glutMainLoop ();
+    
+    delete bshRoot;
     return 0;
 }

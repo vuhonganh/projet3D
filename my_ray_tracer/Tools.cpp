@@ -30,18 +30,20 @@ float f_Lambert(float k_d){
     return f_L;
 }
 
-//float response_color(Vec3f w,Vec3f w0, Vec3f n, float L_w,float alpha,float f0,float k_d)
-float response_color(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f n, float L_w,float alpha,float f0,float k_d)
+float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,float alpha,float f0,float k_d)
 {
     Vec3f w(source - vertex);
     Vec3f w0(camPos - vertex);
     w.normalize();
     w0.normalize();
+    Vec3f n = getNormal(triangle);
+    n.normalize();
     
     float L_w0,f_s,f_d,f;
     f_s=brdf_GGX(w,w0,n,alpha,f0);
     f_d=f_Lambert(k_d);
     f=f_d+f_s;
+    
     L_w0=L_w*f*dot(n,w);
     return L_w0;
 }
@@ -54,29 +56,19 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal)
     return dot(normal, wi); 
 }
 
-void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle)
-{
-    for (size_t v = 0; v < 3; v++)
-    {
-        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-        
-        triangle[v] = Vec3f(shapes[s].mesh.positions[index],
-                            shapes[s].mesh.positions[index+1],
-                            shapes[s].mesh.positions[index+2]);
-    }
-}
-
-float BlinnPhong(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f normal, float s)
+float blinnPhong(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float s)
 {
     Vec3f wi(source - vertex);
     Vec3f wo(camPos - vertex);
+    Vec3f n = getNormal(triangle);
     wi.normalize();
     wo.normalize();
+    n.normalize();
     
     Vec3f wh(wi + wo);
     wh.normalize();
     
-    return pow(dot(normal, wh),s);
+    return pow(dot(n, wh),s);
 }
 
 float toRad(float x)
@@ -84,35 +76,13 @@ float toRad(float x)
     return acos(-1.0) * x / 180;
 }
 
-//Vec3f RGBtoHSL(Vec3f rgb)
-//{
-//    float Cmax = max(max(rgb[0], rgb[1]), rgb[2]);
-//    float Cmin = min(min(rgb[0], rgb[1]), rgb[2]);
-//    float delta = Cmax - Cmin;
-    
-//    float hue;
-//    if (delta == 0) hue = 0;
-//    else
-//        if (Cmax == rgb[0])
-//            hue = toRad(60) * (((rgb[1] - rgb[2]) / delta) % 6);
-//        else
-//            if (Cmax == rgb[1])
-//                hue = toRad(60) * (((rgb[2] - rgb[0]) / delta) + 2);
-//            else
-//                if (Cmax == rgb[2])
-//                    hue = toRad(60) * (((rgb[0] - rgb[1]) / delta) + 4);
-    
-//    float lightness = (Cmax + Cmin) / 2;
-    
-//    float saturation;
-//    if (delta == 0)
-//        saturation = 0;
-//    else
-//        saturation = delta / (1 - fabs(2 * L - 1));
-    
-//    return Vec3f(hue, saturation, lightness);
-//}
+bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
+{
+    Vec3f A = triangle[0];
+    Vec3f BA = triangle[1] - A;
+    Vec3f CA = triangle[2] - A;
 
+<<<<<<< HEAD
 //Vec3f HSLtoRGB(Vec3f hsl)
 //{
 //    float angle60 = acos(-1.0) * 60 / 180;
@@ -142,3 +112,43 @@ float toRad(float x)
 //    rgb += Vec3f(m, m, m);
 //    return rgb;
 //}
+=======
+    //vector normal of the plane ABC:
+    Vec3f n = cross(BA, CA);
+    n /= n.length();
+
+    //A point P lies in the plane ABC is: (P-A).n = 0
+    //with P = tX + (1-t)Y, where t is the length along direction XY
+    //il revient a trouver t qui satisfait: t*dot((X-Y),n) = dot((A-Y),n)
+
+    if(fabs(dot(X-Y, n)) > EPS)
+    {
+        float t = dot(A-Y, n) / (dot(X-Y,n));
+        if(t > EPS && t < 1.0 + EPS)
+            return true;
+    }
+    return false;
+}
+
+Vec3f getNormal(Vec3f * triangle)
+{
+    Vec3f A = triangle[0];
+    Vec3f BA = triangle[1] - A;
+    Vec3f CA = triangle[2] - A;
+
+    //vector normal of the plane ABC:
+    Vec3f n = cross(BA, CA);
+    n /= n.length();
+    return n;
+}
+
+float getRandomFloat(float min, float max)
+{
+    // this  function assumes max > min
+
+    float random = ((float) rand()) / (float) RAND_MAX;
+
+    float range = max - min;
+    return (random*range) + min;
+}
+>>>>>>> origin/master

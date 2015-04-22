@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Vec3.h"
+using namespace std;
 
 namespace tinyobj {
 
@@ -19,8 +21,8 @@ typedef struct {
     float diffuse[3];
     float specular[3];
     float transmittance[3];
-    float emission[3];
-    float shininess;
+    float emission[3];//pour lightSOURCE
+    float shininess;//s dans blinnphong
     float ior;      // index of refraction
     float dissolve; // 1 == opaque; 0 == fully transparent
     // illumination model (see http://www.fileformat.info/format/material/)
@@ -90,5 +92,8 @@ std::string LoadObj(std::vector<shape_t> &shapes,       // [output]
 std::string LoadMtl(std::map<std::string, int> &material_map,
                     std::vector<material_t> &materials, std::istream &inStream);
 }
+
+void getTrianglePositionFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle);
+void getTriangleNormalFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle);
 
 #endif // _TINY_OBJ_LOADER_H

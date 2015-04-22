@@ -1,5 +1,4 @@
 #include "RaySource.h"
-#define EPS 0.0000001
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
@@ -19,6 +18,7 @@ RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f l
 
 void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, 
                  const vector <tinyobj::material_t> &materials,
+                 BSHNode * bshRoot,
                  unsigned char * rayImage)
 {
     //find root point
@@ -55,7 +55,7 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             Vec3f direction = root + xVec + yVec - position;
             
             //ray calculated
-            Ray ray(position, direction);
+            Ray ray(position, direction, bshRoot, 1);
             
             //calculate average color
             Vec3f color = Vec3f(0.0, 0.0, 0.0);

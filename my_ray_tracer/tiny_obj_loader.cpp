@@ -850,3 +850,27 @@ std::string LoadObj(std::vector<shape_t> &shapes,
   return err.str();
 }
 }
+
+void getTrianglePositionFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * trianglePositions)
+{
+    for (size_t v = 0; v < 3; v++)
+    {
+        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
+        
+        trianglePositions[v] = Vec3f(shapes[s].mesh.positions[index],
+                            shapes[s].mesh.positions[index+1],
+                            shapes[s].mesh.positions[index+2]);
+    }
+}
+
+void getTriangleNormalFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangleNormals)
+{
+    for (size_t v = 0; v < 3; v++)
+    {
+        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
+        
+        triangleNormals[v] = Vec3f(shapes[s].mesh.normals[index],
+                            shapes[s].mesh.normals[index+1],
+                            shapes[s].mesh.normals[index+2]);
+    }
+}
