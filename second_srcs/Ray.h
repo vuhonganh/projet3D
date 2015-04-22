@@ -33,13 +33,8 @@ struct Ray
                    Vec3f lightSource);
     
     //a partir de la rayon qui vient, l'intersection avec la triangle
-    //generer nbRays nouvelles rayons qui sorte, de facon aleatoire (uniforme autours l'hemisphere)
-    vector<Ray> getRaysOutUni(Ray rayCome, Vec3f intersection, Vec3f * triangle, int NbRays = 32);
-
-    //je suis pas sur de cette fonction dessous ou on peut faire autrement?
-    //a partir de la rayon qui vient, l'intersection et la normal de la surface
-    //generer nbRays nouvelles rayons qui sorte,de facon biaisé (l'importance avec l'angle autours)
-    vector<Ray> getRaysOutBias(Ray rayCome, Vec3f intersection, Vec3f * triangle, int NbRays = 32);
+    //generer nbRays nouvelles rayons qui sorte de facon aleatoire
+    vector<Ray> getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays = 32);
 
     //given a triangle and 2 points X and Y in space
     //check if the segment XY cut the triangle plane or not

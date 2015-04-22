@@ -2,6 +2,7 @@
 #include "Tools.h"
 #define EPS 0.000001
 
+
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
 
@@ -179,7 +180,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
 
 }
 
-vector<Ray> Ray::getRaysOutUni(Ray rayCome, Vec3f intersection, Vec3f * triangle, int NbRays)
+vector<Ray> Ray::getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays)
 {
     Vec3f n = getNormal(triangle);
 
@@ -205,8 +206,6 @@ vector<Ray> Ray::getRaysOutUni(Ray rayCome, Vec3f intersection, Vec3f * triangle
     }
 
     return rayOuts;
-
-
 }
 
 
