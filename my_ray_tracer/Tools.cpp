@@ -54,18 +54,6 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal)
     return dot(normal, wi); 
 }
 
-void getTriangleFromShape(const vector<tinyobj::shape_t> &shapes, int s, int f, Vec3f * triangle)
-{
-    for (size_t v = 0; v < 3; v++)
-    {
-        unsigned int index = 3*shapes[s].mesh.indices[3*f+v];
-        
-        triangle[v] = Vec3f(shapes[s].mesh.positions[index],
-                            shapes[s].mesh.positions[index+1],
-                            shapes[s].mesh.positions[index+2]);
-    }
-}
-
 float BlinnPhong(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f normal, float s)
 {
     Vec3f wi(source - vertex);

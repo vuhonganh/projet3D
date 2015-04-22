@@ -8,53 +8,109 @@ Ray::Ray(Vec3f position, Vec3f direction)
 }
 
 //get nearest triangle except exceptionTriangle
-pair <int, int> Ray::getNearestTriangle(const vector<tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle)
-{      
-    bool flagOK = false;
-    float bestDistance = -1;
-    pair <int, int> result;
+pair <int, int> Ray::getNearestTriangle(const vector <tinyobj::shape_t> &shapes,
+                                        BSHNode * node,
+                                        pair <int, int> exceptionTriangle)
+{
+    pair <int, int> resultIndex = make_pair(-1, -1);
+    float resultDistance = -1;
+    
+    this->getNearestTriangleByBSHNode(shapes, node, exceptionTriangle, resultIndex, resultDistance);
+    
+    return resultIndex;
+}
 
-    //try all triangles for finding the nearest one
-    for (size_t s = 0; s < shapes.size(); s++)
-        for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
+void Ray::getNearestTriangleByBSHNode(const vector <tinyobj::shape_t> &shapes,
+                                        BSHNode * node,
+                                        pair <int, int> exceptionTriangle,
+                                        pair <int, int> &resultIndex,
+                                        float &resultDistance)
+{    
+    if (this->intersect_sphere(node->center, node->radius) == false)
+        return;
+
+    if (node->leftChild == NULL && node->rightChild == NULL)
+    {
+        for (pair <int, int> index: node->triangleIds)
         {
-            if (int(s) == exceptionTriangle.first && int(f) == exceptionTriangle.second) continue;
-         
-            //get triangle from messs
-            Vec3f triangle[3];
-            getTriangleFromShape(shapes, s, f, triangle);
+            if (index == exceptionTriangle) continue;
             
-            //get intersection
+            Vec3f triangle[3];
+            getTrianglePositionFromShape(shapes, index.first, index.second, triangle);
+            
             Vec3f intersection;
             if (this->intersect_remake(triangle, intersection))
             {
-                //there is an interection
-                flagOK = true;
-                float distance = (intersection - position).length();
-                
-                //check if the ray meets intersection before lightSource
-                if (bestDistance < 0 || bestDistance > distance)
+                float dist = (this->position - intersection).length();
+                if (resultDistance < 0 || dist < resultDistance)
                 {
-                    //update minimum distance
-                    bestDistance = distance;
-                    result = make_pair(s, f);
+                    resultDistance = dist;
+                    resultIndex = index;
                 }
             }
         }
-    
-    //check if the ray meets at least one intersection
-    if (flagOK == false)
-        return make_pair(-1, -1); //if false => not found
-    else 
-        return result; //if true
+    }
+    else
+    {
+        if (node->leftChild != NULL) 
+            this->getNearestTriangleByBSHNode(shapes, node->leftChild, exceptionTriangle, resultIndex, resultDistance);
+        
+        if (node->rightChild != NULL)
+            this->getNearestTriangleByBSHNode(shapes, node->rightChild, exceptionTriangle, resultIndex, resultDistance);
+    }
 }
+
+////brute-force
+//pair <int, int> Ray::getNearestTriangle(const vector <tinyobj::shape_t> &shapes,
+//                                        BSHNode * node,
+//                                        pair <int, int> exceptionTriangle)
+//{      
+//    bool flagOK = false;
+//    float bestDistance = -1;
+//    pair <int, int> result;
+
+//    //try all triangles for finding the nearest one
+//    for (size_t s = 0; s < shapes.size(); s++)
+//        for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
+//        {
+//            if (int(s) == exceptionTriangle.first && int(f) == exceptionTriangle.second) continue;
+         
+//            //get triangle from messs
+//            Vec3f triangle[3];
+//            getTrianglePositionFromShape(shapes, s, f, triangle);
+            
+//            //get intersection
+//            Vec3f intersection;
+//            if (this->intersect_remake(triangle, intersection))
+//            {
+//                //there is an interection
+//                flagOK = true;
+//                float distance = (intersection - position).length();
+                
+//                //check if the ray meets intersection before lightSource
+//                if (bestDistance < 0 || bestDistance > distance)
+//                {
+//                    //update minimum distance
+//                    bestDistance = distance;
+//                    result = make_pair(s, f);
+//                }
+//            }
+//        }
+    
+//    //check if the ray meets at least one intersection
+//    if (flagOK == false)
+//        return make_pair(-1, -1); //if false => not found
+//    else 
+//        return result; //if true
+//}
 
 Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes, 
                const vector <tinyobj::material_t> &materials, 
+               BSHNode * bshRoot,
                Vec3f lightSource)
 {
     //find triangle that intersect the ray
-    pair <int, int> shapeId = this->getNearestTriangle(shapes, make_pair(-1, -1));
+    pair <int, int> shapeId = this->getNearestTriangle(shapes, bshRoot, make_pair(-1, -1));
     if (shapeId.first == -1) return Vec3f(0.0, 0.0, 0.0);
     
     //get index of its material (for the color after)
@@ -62,7 +118,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     
     //get triangle that intersect the ray
     Vec3f triangle[3];
-    getTriangleFromShape(shapes, shapeId.first, shapeId.second, triangle);
+    getTrianglePositionFromShape(shapes, shapeId.first, shapeId.second, triangle);
     
     //calculate intersection
     Vec3f intersection;
@@ -70,7 +126,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     
     ////check reflected ray
     Ray reflectedRay(intersection, lightSource - intersection);
-    pair <int, int> tempShapeId = reflectedRay.getNearestTriangle(shapes, shapeId);
+    pair <int, int> tempShapeId = reflectedRay.getNearestTriangle(shapes, bshRoot, shapeId);
     
     //check if the reflected ray can reach the light source
     if (tempShapeId.first != -1)
@@ -79,7 +135,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
         
         //get that triangle
         Vec3f tempTriangle[3];
-        getTriangleFromShape(shapes, tempShapeId.first, tempShapeId.second, tempTriangle);
+        getTrianglePositionFromShape(shapes, tempShapeId.first, tempShapeId.second, tempTriangle);
         
         //get intersection
         Vec3f tempIntersection;
@@ -207,4 +263,29 @@ bool Ray::solveLinear2(float M[], float N[], float P[], float result[])
         result[1] = Dy/D;
         return true;
     }
+}
+
+//check if ray intersect with a sphere
+bool Ray::intersect_sphere(Vec3f center, float radius)
+{
+    Vec3f oc = this->position - center;
+    float A = dot(this->direction, this->direction);
+    float B = 2 * dot(oc, this->direction);
+    float C = dot(oc, oc) - radius * radius;
+    
+    float delta = B * B - 4 * A * C;
+    
+    if (delta < -EPS) return false;
+    if (delta >= -EPS && delta <= EPS) return true;
+    
+    float t1 = (-B + sqrt(delta))/(2*A);
+    float t2 = (-B - sqrt(delta))/(2*A);
+
+    //cut from outside, choose the smaller one (i.e. the nearer)
+    if((t1 >= -EPS) && (t2 >= -EPS)) return true;
+    else 
+        if (t1 * t2 < -EPS) //cut from inside: one negative, one positive, choose the positive one (not sure)
+            return true;
+
+    return false;
 }

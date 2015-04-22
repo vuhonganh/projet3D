@@ -19,6 +19,7 @@ RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f l
 
 void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, 
                  const vector <tinyobj::material_t> &materials,
+                 BSHNode * bshRoot,
                  unsigned char * rayImage)
 {
     //find root point
@@ -61,7 +62,7 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             Vec3f color = Vec3f(0.0, 0.0, 0.0);
             for (int iLight = 0; iLight < int(this->lightSources.size()); ++iLight)
             {
-                Vec3f cl = ray.getColor(shapes, materials, lightSources[iLight]);
+                Vec3f cl = ray.getColor(shapes, materials, bshRoot, lightSources[iLight]);
                 color += cl;
             }
             color /= int(this->lightSources.size());

@@ -1,30 +1,32 @@
 #ifndef BSHNODE_H
 #define BSHNODE_H
 
-#include "Mesh.h"
 #include "Vec3.h"
+#include "tiny_obj_loader.h"
 #include <vector>
+#include <cmath>
+#include <iostream>
+#define TRIANGLES_PER_LEAF 5
 
-class BSHNode
+using namespace tinyobj;
+
+struct BSHNode
 {
- public:
-  BSHNode(const Mesh& m);
-  BSHNode(const std::vector<Vertex> &V, const std::vector<Triangle> &T);
-  void split(const std::vector<Vertex> &V, const std::vector<Triangle> &T);
-  BSHNode();
-	
-  static const int TRIANGLES_PER_LEAF = 3;
-
-  //ci-dessous sont des valeurs moyennes:
-  Vec3f position;//position of the center of sphere
-  Vec3f normal;//a normal vector average
-  Vec3f color;
-
-  float radius;//radius of the sphere
-
-  BSHNode * leftChild;
-  BSHNode * rightChild;
-  
+    //elements
+    vector <pair <int, int> > triangleIds;
+    BSHNode * leftChild;
+    BSHNode * rightChild;
+    
+    Vec3f center;
+    Vec3f normal;
+    float radius;
+    
+    int splitDirection;
+    float splitValue;
+    
+    //methods
+    BSHNode(const vector <shape_t> &shapes, const vector <pair <int, int> > &triangleIds);
+    ~BSHNode();
 };
 
 #endif
