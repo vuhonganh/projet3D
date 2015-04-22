@@ -28,6 +28,8 @@ using namespace std;
 static const unsigned int DEFAULT_SCREENWIDTH = 400;
 static const unsigned int DEFAULT_SCREENHEIGHT = 300;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
+//"scenes/cube/cube.obj";
+//"scenes/mitsuba/mitsuba-sphere.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
 static unsigned int screenWidth;

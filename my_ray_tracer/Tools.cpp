@@ -82,6 +82,37 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
     Vec3f BA = triangle[1] - A;
     Vec3f CA = triangle[2] - A;
 
+<<<<<<< HEAD
+//Vec3f HSLtoRGB(Vec3f hsl)
+//{
+//    float angle60 = acos(-1.0) * 60 / 180;
+//    float C = (1 - fabs(2 * hsl[2] - 1)) * hsl[1];
+//    float X = C * (1 - fabs((hsl[0] / angle60) % 2 - 1));
+//    float m = hsl[2] - C/2;
+    
+//    Vec3f rgb;
+//    if (hsl[0] >= toRad(0) && hsl[0] < toRad(60))
+//        rgb = Vec3f(C, X, 0);
+    
+//    if (hsl[0] >= toRad(60) && hsl[0] < toRad(120))
+//        rgb = Vec3f(X, C, 0);
+    
+//    if (hsl[0] >= toRad(120) && hsl[0] < toRad(180))
+//        rgb = Vec3f(0, C, X);
+    
+//    if (hsl[0] >= toRad(180) && hsl[0] < toRad(240))
+//        rgb = Vec3f(0, X, C);
+    
+//    if (hsl[0] >= toRad(240) && hsl[0] < toRad(300))
+//        rgb = Vec3f(X, 0, C);
+    
+//    if (hsl[0] >= toRad(300) && hsl[0] < toRad(360))
+//        rgb = Vec3f(C, 0, X);
+    
+//    rgb += Vec3f(m, m, m);
+//    return rgb;
+//}
+=======
     //vector normal of the plane ABC:
     Vec3f n = cross(BA, CA);
     n /= n.length();
@@ -120,3 +151,4 @@ float getRandomFloat(float min, float max)
     float range = max - min;
     return (random*range) + min;
 }
+>>>>>>> origin/master
