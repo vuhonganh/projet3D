@@ -1,4 +1,5 @@
 #include "Ray.h"
+#include "Tools.h"
 #define EPS 0.000001
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
@@ -178,15 +179,41 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
 
 }
 
+vector<Ray> Ray::getRaysOutUni(Ray rayCome, Vec3f intersection, Vec3f * triangle, int NbRays)
+{
+    Vec3f n = getNormal(triangle);
+
+    //find a unit vector in the plane
+    Vec3f ex(triangle[0] - intersection);
+    ex /= ex.length();
+
+    //another unit vector in the plane to forme a local coordiante
+    Vec3f ey = cross(n, ex);
+
+    vector<Ray> rayOuts;
+
+    for(int i = 0; i < NbRays; i++)
+    {
+        float xComponent     = getRandomFloat(-1.0, 1.0);
+        float yComponent     = getRandomFloat(-1.0, 1.0);
+        float normalComponent = getRandomFloat(0.0, 1.0);
+
+        Vec3f dirOut(xComponent * ex + yComponent * ey + normalComponent * n);
+        dirOut /= dirOut.length();
+
+        rayOuts.push_back(Ray(intersection, dirOut));
+    }
+
+    return rayOuts;
+
+
+}
+
+
+
 bool Ray::lineCutTriPlane(Vec3f * triangle, Vec3f X, Vec3f Y)
 {
-    Vec3f A = triangle[0];
-    Vec3f BA = triangle[1] - A;
-    Vec3f CA = triangle[2] - A;
-
-    //vector normal of the plane ABC:
-    Vec3f n = cross(BA, CA);
-    n /= n.length();
+    Vec3f n = getNormal(triangle);
 
     //A point P lies in the plane ABC is: (P-A).n = 0
     //with P = tX + (1-t)Y, where t is the length along direction XY
@@ -194,7 +221,7 @@ bool Ray::lineCutTriPlane(Vec3f * triangle, Vec3f X, Vec3f Y)
 
     if(fabs(dot(X-Y, n)) > EPS)
     {
-        float t = dot(A-Y, n) / (dot(X-Y,n));
+        float t = dot(triangle[0] - Y, n) / (dot(X - Y, n));
         if(t > EPS && t < 1.0 + EPS)
             return true;
     }
