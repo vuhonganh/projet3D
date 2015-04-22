@@ -25,8 +25,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 1024;
-static const unsigned int DEFAULT_SCREENHEIGHT = 700;
+static const unsigned int DEFAULT_SCREENWIDTH = 640;
+static const unsigned int DEFAULT_SCREENHEIGHT = 480;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -201,6 +201,8 @@ void init (const string & filename)
             triangleIds.push_back(make_pair(s, f));
     
     bshRoot = new BSHNode(shapes, triangleIds);
+    
+    srand(time(NULL));
 }
 
 void setupCamera ()

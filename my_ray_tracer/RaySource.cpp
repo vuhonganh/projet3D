@@ -1,5 +1,4 @@
 #include "RaySource.h"
-#define EPS 0.0000001
 
 #define DEBUG(x) cout << #x << " = " << x << endl;
 
@@ -56,13 +55,13 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             Vec3f direction = root + xVec + yVec - position;
             
             //ray calculated
-            Ray ray(position, direction);
+            Ray ray(position, direction, bshRoot, 1);
             
             //calculate average color
             Vec3f color = Vec3f(0.0, 0.0, 0.0);
             for (int iLight = 0; iLight < int(this->lightSources.size()); ++iLight)
             {
-                Vec3f cl = ray.getColor(shapes, materials, bshRoot, lightSources[iLight]);
+                Vec3f cl = ray.getColor(shapes, materials, lightSources[iLight]);
                 color += cl;
             }
             color /= int(this->lightSources.size());

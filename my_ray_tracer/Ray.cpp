@@ -1,30 +1,30 @@
 #include "Ray.h"
-#define EPS 0.000001
 
-Ray::Ray(Vec3f position, Vec3f direction)
+Ray::Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth)
 {
     this->position = position;
     this->direction = direction;
+    this->depth = depth;
+    this->bshRoot = bshRoot;
 }
 
 //get nearest triangle except exceptionTriangle
 pair <int, int> Ray::getNearestTriangle_KDTree(const vector <tinyobj::shape_t> &shapes,
-                                        BSHNode * node,
-                                        pair <int, int> exceptionTriangle)
+                                               pair <int, int> exceptionTriangle)
 {
     pair <int, int> resultIndex = make_pair(-1, -1);
     float resultDistance = -1;
     
-    this->getNearestTriangleByBSHNode(shapes, node, exceptionTriangle, resultIndex, resultDistance);
+    this->getNearestTriangleByBSHNode(shapes, bshRoot, exceptionTriangle, resultIndex, resultDistance);
     
     return resultIndex;
 }
 
 void Ray::getNearestTriangleByBSHNode(const vector <tinyobj::shape_t> &shapes,
-                                        BSHNode * node,
-                                        pair <int, int> exceptionTriangle,
-                                        pair <int, int> &resultIndex,
-                                        float &resultDistance)
+                                      BSHNode * node,
+                                      pair <int, int> exceptionTriangle,
+                                      pair <int, int> &resultIndex,
+                                      float &resultDistance)
 {    
     if (this->intersect_sphere(node->center, node->radius) == false)
         return;
@@ -62,7 +62,6 @@ void Ray::getNearestTriangleByBSHNode(const vector <tinyobj::shape_t> &shapes,
 
 ////brute-force
 pair <int, int> Ray::getNearestTriangle_BruteForce(const vector <tinyobj::shape_t> &shapes,
-                                        BSHNode * node,
                                         pair <int, int> exceptionTriangle)
 {      
     bool flagOK = false;
@@ -104,65 +103,102 @@ pair <int, int> Ray::getNearestTriangle_BruteForce(const vector <tinyobj::shape_
         return result; //if true
 }
 
-Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes, 
-               const vector <tinyobj::material_t> &materials, 
-               BSHNode * bshRoot,
-               Vec3f lightSource)
+pair <int, int> Ray::getIntersectTriangle(const vector <tinyobj::shape_t> &shapes,
+                         pair <int, int> exceptionTriangle,
+                         Vec3f * triangle)
 {
-    //find triangle that intersect the ray
-    pair <int, int> shapeId = this->getNearestTriangle_KDTree(shapes, bshRoot, make_pair(-1, -1));
-    if (shapeId.first == -1) return Vec3f(0.0, 0.0, 0.0);
+    pair <int, int> shapeId = this->getNearestTriangle_KDTree(shapes, exceptionTriangle);
+    if (shapeId.first == -1) return make_pair(-1, -1);
     
-    //get triangle that intersect the ray
-    Vec3f triangle[3];
     getTrianglePositionFromShape(shapes, shapeId.first, shapeId.second, triangle);
+    return shapeId;
+}
+
+bool Ray::canReach(Vec3f point, const vector <tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle)
+{
+    Vec3f triangle[3];
+    pair <int, int> shapeId = this->getIntersectTriangle(shapes, exceptionTriangle, triangle);
     
-    //check if position and lightsource are in different sides of the triangle
-    if (lineCutTrianglePlane(triangle, this->position, lightSource))
-        return Vec3f(0.0, 0.0, 0.0);
-    
-    //calculate intersection
-    Vec3f intersection;
-    this->intersect_remake(triangle, intersection);
-    
-    ////check reflected ray
-    Ray reflectedRay(intersection, lightSource - intersection);
-    pair <int, int> tempShapeId = reflectedRay.getNearestTriangle_KDTree(shapes, bshRoot, shapeId);
-    
-    //check if the reflected ray can reach the light source
-    if (tempShapeId.first != -1)
+    if (shapeId.first != -1)
     {
-        //if the reflected ray intersect a triangle
-        
-        //get that triangle
-        Vec3f tempTriangle[3];
-        getTrianglePositionFromShape(shapes, tempShapeId.first, tempShapeId.second, tempTriangle);
-        
-        //get intersection
-        Vec3f tempIntersection;
-        reflectedRay.intersect_remake(tempTriangle, tempIntersection);
+        Vec3f intersection;
+        this->intersect_remake(triangle, intersection);
         
         //if the triangle is in front of the light source => cancel
-        if ((tempIntersection - intersection).length() < (intersection - lightSource).length())
-            return Vec3f(0.0, 0.0, 0.0);
+        if ((this->position - intersection).length() < (this->position - point).length())
+            return false;
+        else
+            return true;
+    }
+    else
+        return true;
+}
+
+Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes, 
+               const vector <tinyobj::material_t> &materials,
+               Vec3f lightSource)
+{        
+    //get triangle that intersect the ray
+    Vec3f triangle[3];
+    pair <int, int> shapeId = this->getIntersectTriangle(shapes, make_pair(-1, -1), triangle);
+    if (shapeId.first == -1) return Vec3f(0.0, 0.0, 0.0);
+    
+    //check if position and lightsource are in different sides of the triangle    
+    Vec3f intersection;
+    Vec3f color_direct;
+    
+    if (lineCutTrianglePlane(triangle, this->position, lightSource))
+        color_direct = Vec3f(0.0, 0.0, 0.0);
+    else
+    {    
+        //calculate intersection
+        this->intersect_remake(triangle, intersection);
+        
+        //check reflected ray
+        Ray reflectedRay(intersection, lightSource - intersection, bshRoot, 0);
+        if (reflectedRay.canReach(lightSource, shapes, shapeId) == false)
+            color_direct = Vec3f(0.0, 0.0, 0.0);
+        else
+        {
+            //calculate color_direct
+            float radian_direct = ggx(this->position, lightSource, intersection, triangle, 1.0, 0.5, 0.5, 1.0);
+            unsigned int iMaterial = shapes[shapeId.first].mesh.material_ids[shapeId.second];
+            color_direct = Vec3f(materials[iMaterial].diffuse[0] * radian_direct, 
+                                       materials[iMaterial].diffuse[1] * radian_direct,
+                                       materials[iMaterial].diffuse[2] * radian_direct);
+        }
     }
     
-    //calculate normal vector of the triangle
-    Vec3f normal = cross(triangle[1] - triangle[0], triangle[2] - triangle[0]);
-    normal.normalize();
+    Vec3f color_indirect(0.0, 0.0, 0.0);
+    if (depth <= MAX_DEPTH)
+    {
+        vector <Ray> rays = this->getRandomRaysOut(intersection, triangle, depth + 1, NUMBER_OF_RAYS);
+//        cout << "rays.size() = " << rays.size() << endl;
+//        vector <Ray> rays = this->getRandomRaysOut_Test(intersection, triangle, depth - 1, NUMBER_OF_RAYS);
+        
+        int counter = 0;
+        for (Ray ray: rays)
+        {
+            Vec3f color = ray.getColor(shapes, materials, lightSource);
+            if (color[0] < EPS && color[1] < EPS && color[2] < EPS) continue;
+            
+            Vec3f w = ray.direction;
+            Vec3f wo = this->position - intersection;
+            w.normalize();
+            wo.normalize();
+            Vec3f n = getNormal(triangle);
+            
+            float brdf = brdf_GGX(w, wo, n, 0.5, 0.5);
+            
+            counter++;
+            color_indirect += (color * brdf);
+        }
+        
+        if (counter > 0) 
+            color_indirect /= counter;
+    }
     
-    //calculate lightness
-    //GGX
-    float lightness = response_color(intersection, lightSource, this->position, normal, 1.0, 0.5, 0.5, 1.0);
-    
-    //Blinn Phong
-//    float lightness = BlinnPhong(intersection, lightSource, this->position, normal, 2.0);
-
-    //get index of its material (for the color after)
-    unsigned int iMaterial = shapes[shapeId.first].mesh.material_ids[shapeId.second];
-    return Vec3f(   materials[iMaterial].diffuse[0] * lightness, 
-                    materials[iMaterial].diffuse[1] * lightness,
-                    materials[iMaterial].diffuse[2] * lightness);
+    return color_direct + color_indirect;
     
 }
 
@@ -291,4 +327,52 @@ bool Ray::intersect_sphere(Vec3f center, float radius)
             return true;
 
     return false;
+}
+
+vector<Ray> Ray::getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int depth, int NbRays)
+{
+    Vec3f n = getNormal(triangle);
+
+    //find a unit vector in the plane
+    Vec3f ex(triangle[0] - intersection);
+    ex /= ex.length();
+
+    //another unit vector in the plane to forme a local coordiante
+    Vec3f ey = cross(n, ex);
+
+    vector<Ray> rayOuts;
+
+    for(int i = 0; i < NbRays; i++)
+    {
+        float xComponent     = getRandomFloat(-1.0, 1.0);
+        float yComponent     = getRandomFloat(-1.0, 1.0);
+        float normalComponent = getRandomFloat(0.0, 1.0);
+
+        Vec3f dirOut(xComponent * ex + yComponent * ey + normalComponent * n);
+        dirOut /= dirOut.length();
+
+        rayOuts.push_back(Ray(intersection, dirOut, this->bshRoot, depth));
+    }
+
+    return rayOuts;
+}
+
+vector<Ray> Ray::getRandomRaysOut_Test(Vec3f intersection, Vec3f * triangle, int depth, int NbRays)
+{
+    Vec3f normal = getNormal(triangle);
+    Vec3f wi = this->position - intersection;
+    wi.normalize();
+    
+    float cos_theta = dot(normal, wi);
+    
+    Vec3f y = cross(wi, normal);
+    Vec3f x = cross(y, normal);
+    
+    Vec3f reflect = fabs(sin(acos(cos_theta))) * x + cos_theta * normal;
+    reflect.normalize();
+    
+    vector <Ray> result;
+    result.push_back(Ray(intersection, reflect, bshRoot, depth));
+    
+    return result;
 }

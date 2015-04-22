@@ -8,34 +8,41 @@
 #include "BSHNode.h"
 using namespace std;
 
+#define EPS 0.000001
+#define NUMBER_OF_RAYS 32
+#define MAX_DEPTH 1
+
 struct Ray
 {
     //elements
     Vec3f position;
     Vec3f direction;
     int depth;
+    BSHNode * bshRoot;
         
     //methods
-    Ray(Vec3f position = Vec3f(0.0, 0.0, 0.0), Vec3f direction = Vec3f(0.0, 0.0, -1.0));
+    Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth);
     
     void getNearestTriangleByBSHNode(const vector <tinyobj::shape_t> &shapes,
-                                            BSHNode * bshRoot,
-                                            pair <int, int> exceptionTriangle,
-                                            pair <int, int> &resultIndex,
-                                            float &resultDistance);
+                                     BSHNode * node,
+                                     pair <int, int> exceptionTriangle,
+                                     pair <int, int> &resultIndex,
+                                     float &resultDistance);
     
     pair <int, int> getNearestTriangle_KDTree(const vector <tinyobj::shape_t> &shapes,
-                                       BSHNode * node,
-                                       pair <int, int> exceptionTriangle);
+                                              pair <int, int> exceptionTriangle);
     
     pair <int, int> getNearestTriangle_BruteForce(const vector <tinyobj::shape_t> &shapes,
-                                            BSHNode * node,
                                             pair <int, int> exceptionTriangle);
     
     Vec3f getColor(const vector <tinyobj::shape_t> &shapes, 
                    const vector <tinyobj::material_t> &materials, 
-                   BSHNode * bshRoot,
                    Vec3f lightSource);
+    
+    //a partir de la rayon qui vient, l'intersection avec la triangle
+    //generer nbRays nouvelles rayons qui sorte de facon aleatoire
+    vector<Ray> getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int depth, int NbRays = 32);
+    vector<Ray> getRandomRaysOut_Test(Vec3f intersection, Vec3f * triangle, int depth, int NbRays = 32);
     
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
@@ -44,6 +51,12 @@ struct Ray
 
     //solve Mx + Ny = P, where M,N,P are Vec2f each
     bool solveLinear2(float M[], float N[], float P[], float result[]);
+    
+    pair <int, int> getIntersectTriangle(const vector <tinyobj::shape_t> &shapes,
+                             pair <int, int> exceptionTriangle,
+                             Vec3f * triangle);
+    
+    bool canReach(Vec3f point, const vector <tinyobj::shape_t> &shapes, pair <int, int> exceptionTriangle);
 };
 
 #endif // RAY_H
