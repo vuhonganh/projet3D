@@ -3,7 +3,6 @@
 static int NUMBER_OF_RAYS = 32;
 static int MAX_DEPTH = 2;
 static float EPS = 0.0001;
-static float EPS_COLOR = 0.01;
 
 Ray::Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth, pair <int, int> exceptionTriangle, bool dbg)
 {
@@ -150,7 +149,6 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     //get triangle that intersect the ray
     Vec3f triangle[3];
     pair <int, int> triangleId = this->getIntersectTriangle(shapes, triangle);
-    unsigned int iMaterial = shapes[triangleId.first].mesh.material_ids[triangleId.second];
     
     DBG && cout << "\t[triangleId] " << triangleId.first << ' ' << triangleId.second << endl;
     
@@ -159,7 +157,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
         DBG && cout << "\t[return] no intersection" << endl;
         return Vec3f(0.0, 0.0, 0.0);
     }
-
+    
     Vec3f reversedDirection = this->direction * -1;
     if (dot(reversedDirection, getNormalwithRayComes(triangle, this->direction)) < 0)
     {
@@ -171,6 +169,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     Vec3f intersection;
     Vec3f color_direct;
     
+    unsigned int iMaterial = shapes[triangleId.first].mesh.material_ids[triangleId.second];
     if (lineCutTrianglePlane(triangle, this->direction, this->position, lightSource))
     {
         DBG && cout << "\t[message] lineCutTrianglePlane" << endl;
@@ -212,8 +211,14 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
         for (int iRay = 0; iRay < NUMBER_OF_RAYS; ++iRay)
         {
             Ray ray = this->getRandomRay_Sphere(intersection, triangle, depth + 1, triangleId);
+            
+//            if (triangleId.first == 4)
+//                ray = this->getMirrorRay(intersection, triangle, depth + 1, triangleId);
+            
+//            Ray ray = this->getRandomRay_Sphere(intersection, triangle, depth + 1, triangleId);
 //            Ray ray = this->getInConeRay(intersection, triangle, depth + 1, triangleId);
 //            Ray ray = this->getUniformRay_Plane(intersection, triangle, depth + 1, triangleId, iRay, NUMBER_OF_RAYS);
+//            Ray ray = this->getMirrorRay(intersection, triangle, depth + 1, triangleId);
 
             Vec3f color = ray.getColor(shapes, materials, lightSource);
 
@@ -489,6 +494,19 @@ Ray Ray::getUniformRay_Plane(Vec3f intersection, Vec3f * triangle, int depth, pa
     
     float alpha = unitAngle * (rayId + 1);
     Vec3f dirOut = (cos(alpha) * n + sin(alpha) * ex);
+    dirOut.normalize();
+    
+    return Ray(intersection, dirOut, bshRoot, depth, exceptionTriangle, this->DBG);
+}
+
+Ray Ray::getMirrorRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle)
+{
+    Vec3f n = getNormalwithRayComes(triangle, this->direction);
+    float alpha = acos(dot(-this->direction, n));
+    Vec3f ez = cross(this->direction, n);
+    Vec3f ex = cross(n, ez);
+    
+    Vec3f dirOut = cos(alpha) * n + sin(alpha) * ex;
     dirOut.normalize();
     
     return Ray(intersection, dirOut, bshRoot, depth, exceptionTriangle, this->DBG);

@@ -27,8 +27,8 @@ struct Ray
                                      pair <int, int> &resultIndex,
                                      float &resultDistance);
     
+    pair <int, int> getIntersectTriangle(const vector <tinyobj::shape_t> &shapes, Vec3f * triangle);
     pair <int, int> getNearestTriangle_KDTree(const vector <tinyobj::shape_t> &shapes);
-    
     pair <int, int> getNearestTriangle_BruteForce(const vector <tinyobj::shape_t> &shapes);
     
     Vec3f getColor(const vector <tinyobj::shape_t> &shapes, 
@@ -42,6 +42,7 @@ struct Ray
     Ray getInConeRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle);
     Ray getUniformRay_Plane(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle, int rayId, int nRay);
     Ray getRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle, float angleNormal, float anglePlane);
+    Ray getMirrorRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle);
     
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);
@@ -51,11 +52,7 @@ struct Ray
     //solve Mx + Ny = P, where M,N,P are Vec2f each
     bool solveLinear2(float M[], float N[], float P[], float result[]);
     
-    pair <int, int> getIntersectTriangle(const vector <tinyobj::shape_t> &shapes, Vec3f * triangle);
-    
     bool canReach(Vec3f point, const vector <tinyobj::shape_t> &shapes);
-
-
 };
 
 #endif // RAY_H
