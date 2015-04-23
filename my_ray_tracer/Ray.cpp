@@ -1,6 +1,6 @@
 #include "Ray.h"
 
-static int NUMBER_OF_RAYS = 32;
+static int NUMBER_OF_RAYS = 100;
 static int MAX_DEPTH = 2;
 static float EPS = 0.0001;
 

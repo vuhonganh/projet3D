@@ -24,10 +24,11 @@ struct RaySource
     int resolutionWidth;
     int resolutionHeight;
     vector <Vec3f> lightSources;
+    float * image;
     
     //methods
     RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight);
-    
+    ~RaySource();
     void exportToRGB(const vector<tinyobj::shape_t> &shapes, 
                      const vector <tinyobj::material_t> &materials,
                      BSHNode * bshRoot,

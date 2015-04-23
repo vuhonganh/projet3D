@@ -1,7 +1,9 @@
 #include "RaySource.h"
 #include "Tools.h"
+#include <algorithm>
 #define DEBUG(x) cout << #x << " = " << x << endl;
 static float EPS = 0.0001;
+//using namespace 
 
 RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
@@ -15,6 +17,10 @@ RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f l
     this->resolutionWidth = resolutionWidth;
     this->resolutionHeight = resolutionHeight;
     this->lightSources = lightSources;
+}
+
+RaySource::~RaySource()
+{
 }
 
 void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes, 
@@ -47,6 +53,9 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
     
     //generate rays
     for (int yPixel = 0; yPixel < resolutionHeight; ++yPixel)
+    {
+        cerr << yPixel * 100 / resolutionHeight << " %" << '\n';
+        
         for (int xPixel = 0; xPixel < resolutionWidth; ++xPixel)
         {
             float xScreen = 2.0 * xPixel / resolutionWidth - 1;
@@ -74,4 +83,5 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             rayImage[index+1] = color[1] * 255;
             rayImage[index+2] = color[2] * 255;
         }
+    }
 }
