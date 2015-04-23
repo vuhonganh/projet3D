@@ -8,10 +8,6 @@
 #include "BSHNode.h"
 using namespace std;
 
-//#define EPS 0.000001
-//static int NUMBER_OF_RAYS = 64;
-//static int MAX_DEPTH = 1;
-
 struct Ray
 {
     //elements
@@ -19,10 +15,12 @@ struct Ray
     Vec3f direction;
     int depth;
     BSHNode * bshRoot;
+    bool DBG;
+    
     pair <int, int> exceptionTriangle;
         
     //methods
-    Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth, pair <int, int> exceptionTriangle);
+    Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth, pair <int, int> exceptionTriangle, bool dbg = false);
     
     void getNearestTriangleByBSHNode(const vector <tinyobj::shape_t> &shapes,
                                      BSHNode * node,

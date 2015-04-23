@@ -38,7 +38,7 @@ float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,
     Vec3f w0(camPos - vertex);
     w.normalize();
     w0.normalize();
-    Vec3f n = getNormal(triangle);
+    Vec3f n = getNormalwithRayComes(triangle, -w0);
     n.normalize();
     
     float L_w0, f_s, f_d, f;
@@ -62,7 +62,7 @@ float blinnPhong(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, flo
 {
     Vec3f wi(source - vertex);
     Vec3f wo(camPos - vertex);
-    Vec3f n = getNormal(triangle);
+    Vec3f n = getNormalwithRayComes(triangle, -wo);
     wi.normalize();
     wo.normalize();
     n.normalize();
@@ -78,7 +78,7 @@ float toRad(float x)
     return acos(-1.0) * x / 180;
 }
 
-bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
+bool lineCutTrianglePlane(Vec3f * triangle, Vec3f direction, Vec3f X, Vec3f Y)
 {
     Vec3f A = triangle[0];
     Vec3f BA = triangle[1] - A;
@@ -117,6 +117,9 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
     //vector normal of the plane ABC:
     Vec3f n = cross(BA, CA);
     n /= n.length();
+    
+    if (dot(direction, n) > 0)
+        n *= -1;
 
     //A point P lies in the plane ABC is: (P-A).n = 0
     //with P = tX + (1-t)Y, where t is the length along direction XY
@@ -131,17 +134,17 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y)
     return false;
 }
 
-Vec3f getNormal(Vec3f * triangle)
-{
-    Vec3f A = triangle[0];
-    Vec3f BA = triangle[1] - A;
-    Vec3f CA = triangle[2] - A;
+//Vec3f getNormal(Vec3f * triangle)
+//{
+//    Vec3f A = triangle[0];
+//    Vec3f BA = triangle[1] - A;
+//    Vec3f CA = triangle[2] - A;
 
-    //vector normal of the plane ABC:
-    Vec3f n = cross(BA, CA);
-    n /= n.length();
-    return n;
-}
+//    //vector normal of the plane ABC:
+//    Vec3f n = cross(BA, CA);
+//    n /= n.length();
+//    return n;
+//}
 
 
 float getRandomFloat(float min, float max)
@@ -163,7 +166,7 @@ Vec3f getNormalwithRayComes(Vec3f * triangle, Vec3f rayDirection)
   
   //vector normal of the plane ABC:
   Vec3f n = cross(BA, CA);
-  n /= n.length();
+  n.normalize();
   
   if(dot(n, rayDirection) < -EPS)
     return n;

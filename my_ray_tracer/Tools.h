@@ -42,9 +42,9 @@ float Lambert (Vec3f source, Vec3f position, Vec3f normal);
 float blinnPhong(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float s);
 //float BlinnPhong(Vec3f vertex, Vec3f source, Vec3f camPos, Vec3f normal, float s);
 
-bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y);
+bool lineCutTrianglePlane(Vec3f * triangle, Vec3f direction, Vec3f X, Vec3f Y);
 
-Vec3f getNormal(Vec3f * triangle);
+//Vec3f getNormal(Vec3f * triangle);
 
 float getRandomFloat(float min, float max);
 
