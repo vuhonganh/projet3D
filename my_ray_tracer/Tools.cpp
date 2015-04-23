@@ -143,6 +143,7 @@ Vec3f getNormal(Vec3f * triangle)
     return n;
 }
 
+
 float getRandomFloat(float min, float max)
 {
     // this  function assumes max > min
