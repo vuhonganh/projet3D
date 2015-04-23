@@ -210,8 +210,8 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
         if (counter > 0)
             color_indirect /= counter;
     }
-    
-    color_direct = (color_direct * 0.7) + (color_indirect * 0.3);
+
+   color_direct = (color_direct * 0.7) + (color_indirect * 0.3);
     for (int i = 0; i < 3; ++i)
         color_direct[i] = min(color_direct[i], 1.0f);
     

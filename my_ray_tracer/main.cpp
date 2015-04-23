@@ -13,9 +13,16 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
-//#include <GLUT/GLUT.h>
-//#include <OpenGL/OpenGL.h>
+
+#ifdef __APPLE__
+#include <GLUT/GLUT.h>
+#include <OpenGL/OpenGL.h>
+#elif __linux
 #include <GL/glut.h>
+#elif _WIN32
+#include <GL/glut.h>
+#endif
+
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "RaySource.h"
