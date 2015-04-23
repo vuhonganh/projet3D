@@ -166,13 +166,8 @@ Vec3f getNormalwithRayComes(Vec3f * triangle, Vec3f rayDirection)
 
   //vector normal of the plane ABC:
   Vec3f n = cross(BA, CA);
-<<<<<<< HEAD
   n.normalize();
   
-=======
-  n /= n.length();
-
->>>>>>> 98eb0353d4fd4b0b208750e3a57991f6c7d7f8da
   if(dot(n, rayDirection) < -EPS)
     return n;
   else

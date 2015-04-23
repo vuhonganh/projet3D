@@ -38,8 +38,10 @@ struct Ray
     //a partir de la rayon qui vient, l'intersection avec la triangle
     //generer nbRays nouvelles rayons qui sorte de facon aleatoire
     
-    Ray getRandomRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle);
+    Ray getRandomRay_Sphere(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle);
     Ray getInConeRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle);
+    Ray getUniformRay_Plane(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle, int rayId, int nRay);
+    Ray getRay(Vec3f intersection, Vec3f * triangle, int depth, pair <int, int> exceptionTriangle, float angleNormal, float anglePlane);
     
     bool intersect(Vec3f * triangle, Vec3f &result);
     bool intersect_remake(Vec3f * triangle, Vec3f &result);

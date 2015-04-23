@@ -56,9 +56,7 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             Vec3f direction = root + xVec + yVec - position;
             
             //ray calculated
-            bool dbg = false;
-            if (xPixel == 469 && yPixel == 341) dbg = true;
-            Ray ray(position, direction, bshRoot, 1, make_pair(-1, -1), dbg);
+            Ray ray(position, direction, bshRoot, 1, make_pair(-1, -1), false);
             
             //calculate average color
             Vec3f color = Vec3f(0.0, 0.0, 0.0);

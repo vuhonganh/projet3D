@@ -57,7 +57,7 @@ static Vec3f lightPos = Vec3f (1.f, 1.f, 1.f);
 static Vec3f lightColor = Vec3f (1.f, 1.f, 1.f);
 static Vec3f sceneCenter = Vec3f (0.f, 0.f, 0.f);
 static Vec3f lightSource = Vec3f(300, 518, 250);
-//static Vec3f lightSource = Vec3f(300, 200, 80);
+//static Vec3f lightSource = Vec3f(500, 250, 200);
 static float sceneRadius = 1.f;
 static vector<tinyobj::shape_t> shapes;
 static vector<tinyobj::material_t> materials;
@@ -313,7 +313,9 @@ void rasterize ()
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {                           
+        {          
+//            if (s != 6 || f != 7) continue;
+            
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
