@@ -1,6 +1,6 @@
 #include "Ray.h"
 
-static int NUMBER_OF_RAYS = 32;
+static int NUMBER_OF_RAYS = 1;
 static int MAX_DEPTH = 2;
 static float EPS = 0.0001;
 static float EPS_COLOR = 0.01;
@@ -172,9 +172,14 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
             //calculate color_direct
             float radian_direct = ggx(this->position, lightSource, intersection, triangle, 1.0, 0.8, 0.8, 2.0);
             unsigned int iMaterial = shapes[triangleId.first].mesh.material_ids[triangleId.second];
-            color_direct = Vec3f(   materials[iMaterial].diffuse[0] * radian_direct, 
-                                    materials[iMaterial].diffuse[1] * radian_direct,
-                                    materials[iMaterial].diffuse[2] * radian_direct);
+            
+//            if (triangleId.first != 3 && triangleId.first != 0 && triangleId.first == 1)
+            if (triangleId.first != 3)
+                color_direct = Vec3f(   materials[iMaterial].diffuse[0] * radian_direct, 
+                                        materials[iMaterial].diffuse[1] * radian_direct,
+                                        materials[iMaterial].diffuse[2] * radian_direct);
+            else
+                color_direct = Vec3f(0.0, 0.0, 1.0 * radian_direct);
         }
     }
     
@@ -188,8 +193,8 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
 //            Ray ray = this->getInConeRay(intersection, triangle, depth + 1, triangleId);
             
             Vec3f color = ray.getColor(shapes, materials, lightSource);
-            if (color[0] < EPS_COLOR && color[1] < EPS_COLOR && color[2] < EPS_COLOR)
-                continue;
+//            if (color[0] < EPS_COLOR && color[1] < EPS_COLOR && color[2] < EPS_COLOR)
+//                continue;
             
             float cos_theta = dot(ray.direction, getNormal(triangle));
             Vec3f w = lightSource - intersection;
@@ -211,7 +216,8 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
             color_indirect /= counter;
     }
     
-    color_direct = (color_direct * 0.7) + (color_indirect * 0.3);
+//    color_direct = (color_direct * 0.5) + (color_indirect * 0.5);
+    color_direct += color_indirect;
     for (int i = 0; i < 3; ++i)
         color_direct[i] = min(color_direct[i], 1.0f);
     

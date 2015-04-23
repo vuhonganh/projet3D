@@ -25,9 +25,10 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 400;
-static const unsigned int DEFAULT_SCREENHEIGHT = 300;
+static const unsigned int DEFAULT_SCREENWIDTH = 800;
+static const unsigned int DEFAULT_SCREENHEIGHT = 600;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
+//static const char * DEFAULT_SCENE_FILENAME = "scenes/cube/cube.obj";
 //"scenes/cube/cube.obj";
 //"scenes/mitsuba/mitsuba-sphere.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
@@ -48,6 +49,7 @@ static Vec3f camTarget;
 static Vec3f lightPos = Vec3f (1.f, 1.f, 1.f);
 static Vec3f lightColor = Vec3f (1.f, 1.f, 1.f);
 static Vec3f sceneCenter = Vec3f (0.f, 0.f, 0.f);
+static Vec3f lightSource = Vec3f(300, 518, 250);
 static float sceneRadius = 1.f;
 static vector<tinyobj::shape_t> shapes;
 static vector<tinyobj::material_t> materials;
@@ -292,18 +294,16 @@ void  glSphere(float xc, float yc, float zc, float radius)
   glPopMatrix();
 }
 
-Vec3f lightSource(1.0f, 1.0f, 1.0f);
 void rasterize ()
 {
     setupCamera ();   
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Erase the color and z buffers.
     glBegin (GL_TRIANGLES);
     glColor3f (1.f, 1.f, 1.f);
-    lightSource = Vec3f(0.0f, 0.0f, 0.0f);
     
     for (size_t s = 0; s < shapes.size(); s++)
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
-        {            
+        {
             if (!materials.empty ())
             {
                 // MAIN FUNCTION TO CHANGE !
@@ -324,17 +324,8 @@ void rasterize ()
                 Vec3f temp = Vec3f(shapes[s].mesh.positions[index],
                                     shapes[s].mesh.positions[index+1],
                                     shapes[s].mesh.positions[index+2]);
-                
-                if (s == 1 && f == 0)
-                    lightSource += temp;
             }
         }
-    
-    lightSource /= 3;
-    glSphere(100, 100, 100, 20);
-    lightSource[1] -= 30;
-    lightSource = Vec3f(300, 518, 250);
-    glSphere(lightSource[0], lightSource[1], lightSource[2], 40);
     
     glEnd ();
     glFlush (); // Ensures any previous OpenGL call has been executed
