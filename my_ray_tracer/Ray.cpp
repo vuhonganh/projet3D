@@ -284,7 +284,13 @@ bool Ray::intersect2(Vec3f * triangle, Vec3f &o, Vec3f &w, Vec3f &result)
 
     //the point lies in the plane is: (P-A).n = 0
     //with X = o + w.t, where t is the distance along direction w
-    float t = (dot(A,n) - dot(o,n))/(dot(w,n));
+
+    if(dot(w,n) < EPS)
+        return false;
+
+    Vec3f Ao = A-o;
+
+    float t = (dot(Ao, n)) / (dot(w,n));
     Vec3f X = o + w*t;
     if (t > EPS)
     {
@@ -297,9 +303,9 @@ bool Ray::intersect2(Vec3f * triangle, Vec3f &o, Vec3f &w, Vec3f &result)
         float resEq[2];
         if(solveLinear2(M, N, P, resEq))
         {
-            if( (0 <= resEq[0]) && (resEq[0] <= 1) &&
-                (0 <= resEq[1]) && (resEq[1] <= 1) &&
-                    resEq[0] + resEq[1] <= 1
+            if( (EPS <= resEq[0]) && (resEq[0] <= EPS + 1) &&
+                (EPS <= resEq[1]) && (resEq[1] <= EPS + 1) &&
+                    resEq[0] + resEq[1] <= 1 + EPS
               )
             {
                 result = X;
