@@ -180,6 +180,44 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
 
 }
 
+vector<Ray> Ray::getInConeRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays)
+{
+    Vec3f n = getNormal(triangle);
+    //find a unit vector in the plane
+    Vec3f ex(triangle[0] - intersection);
+    ex /= ex.length();
+
+    //another unit vector in the plane to forme a local coordiante
+    Vec3f ey = cross(n, ex);
+    Vec3f wi(this.position - intersection);
+    wi /= wi.length();
+    
+    float cosTheta_i = dot(wi, n);
+    if(cosTheta_i < -EPS)
+        cout << "ERROR in getInConeRaysOut: l'angle theta_i est plus grande que 90, something wrong with the direction" << endl;
+    
+    
+    vector<Ray> rayOuts;
+
+    for(int i = 0; i < NbRays; i++)
+    {
+        //find a eOnPlane vector unit (which lies on plane)
+        float xComponent     = getRandomFloat(-1.0, 1.0);
+        float yComponent     = getRandomFloat(-1.0, 1.0);
+        Vec3f eOnPlane(xComponent * ex + yComponent * ey);
+        eOnPlane /= eOnPlane.length();
+        
+        //to ensure the direction Out lies inside the cone
+        //dirOut = costheta_i * normal + sintheta_i * eOnPlane 
+        Vec3f dirOut(cosTheta_i * n + sqrt(1 - cosTheta_i*cosTheta_i) * eOnPlane);
+        dirOut /= dirOut.length();
+
+        rayOuts.push_back(Ray(intersection, dirOut));
+    }
+
+    return rayOuts;
+}
+
 vector<Ray> Ray::getRandomRaysOut(Vec3f intersection, Vec3f * triangle, int NbRays)
 {
     Vec3f n = getNormal(triangle);
