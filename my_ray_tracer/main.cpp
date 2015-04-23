@@ -34,10 +34,10 @@ using namespace std;
 // App parameters
 static const unsigned int DEFAULT_SCREENWIDTH = 800;
 static const unsigned int DEFAULT_SCREENHEIGHT = 600;
-//static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
+static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 //static const char * DEFAULT_SCENE_FILENAME = "scenes/CornellBox-Original/CornellBox-Original.obj";
 //static const char * DEFAULT_SCENE_FILENAME = "scenes/mitsuba/mitsuba.obj";
-static const char * DEFAULT_SCENE_FILENAME = "scenes/rungholt/rungholt.obj";
+//static const char * DEFAULT_SCENE_FILENAME = "scenes/rungholt/rungholt.obj";
 //"scenes/cube/cube.obj";
 //"scenes/mitsuba/mitsuba-sphere.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
@@ -60,12 +60,9 @@ static Vec3f lightColor = Vec3f (1.f, 1.f, 1.f);
 static Vec3f sceneCenter = Vec3f (0.f, 0.f, 0.f);
 
 //cornell
-//static Vec3f lightSource = Vec3f(300, 518, 250);
-
-//mitsuba
-static Vec3f lightSource = Vec3f(1.0, 5.0, 2.0);
-
+static Vec3f lightSource = Vec3f(300, 518, 250);
 //static Vec3f lightSource = Vec3f(500, 250, 200);
+
 static float sceneRadius = 1.f;
 static vector<tinyobj::shape_t> shapes;
 static vector<tinyobj::material_t> materials;
