@@ -54,6 +54,8 @@ struct Ray
     pair <int, int> getIntersectTriangle(const vector <tinyobj::shape_t> &shapes, Vec3f * triangle);
     
     bool canReach(Vec3f point, const vector <tinyobj::shape_t> &shapes);
+
+
 };
 
 #endif // RAY_H
