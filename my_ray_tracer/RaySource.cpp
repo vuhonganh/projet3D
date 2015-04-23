@@ -1,8 +1,7 @@
 #include "RaySource.h"
 #include "Tools.h"
-
-
 #define DEBUG(x) cout << #x << " = " << x << endl;
+static float EPS = 0.0001;
 
 RaySource::RaySource(const vector <Vec3f> &lightSources, Vec3f position, Vec3f lookAtPosition, int resolutionWidth, int resolutionHeight)
 {
@@ -57,7 +56,7 @@ void RaySource::exportToRGB(const vector<tinyobj::shape_t> &shapes,
             Vec3f direction = root + xVec + yVec - position;
             
             //ray calculated
-            Ray ray(position, direction, bshRoot, 1);
+            Ray ray(position, direction, bshRoot, 1, make_pair(-1, -1));
             
             //calculate average color
             Vec3f color = Vec3f(0.0, 0.0, 0.0);

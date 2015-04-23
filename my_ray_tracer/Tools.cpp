@@ -1,5 +1,7 @@
 #include "Tools.h"
 
+static float EPS = 0.0001;
+
 float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0)
 {
     float distr_ggx,fresnel,g,f_s;

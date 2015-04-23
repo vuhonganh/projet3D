@@ -6,8 +6,6 @@
 #include <cmath>
 #include "tiny_obj_loader.h"
 
-#define EPS 0.00001
-
 using namespace std;
 
 float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0);
