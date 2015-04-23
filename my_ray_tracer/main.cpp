@@ -25,8 +25,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 400;
-static const unsigned int DEFAULT_SCREENHEIGHT = 300;
+static const unsigned int DEFAULT_SCREENWIDTH = 640;
+static const unsigned int DEFAULT_SCREENHEIGHT = 480;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 //"scenes/cube/cube.obj";
 //"scenes/mitsuba/mitsuba-sphere.obj";
@@ -383,6 +383,9 @@ void rayTrace ()
     //message
     printf("%.3lf\n", double(end - begin) / CLOCKS_PER_SEC);
     cout << "lightSource = " << lightSource << endl;
+    cout << 'a';
+    cout << 'a';
+    cout << 'a';
 }
 
 void display ()

@@ -1,7 +1,7 @@
 #include "Ray.h"
 
-static int NUMBER_OF_RAYS = 64;
-static int MAX_DEPTH = 1;
+static int NUMBER_OF_RAYS = 32;
+static int MAX_DEPTH = 2;
 
 Ray::Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth)
 {
@@ -165,7 +165,7 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
         else
         {
             //calculate color_direct
-            float radian_direct = ggx(this->position, lightSource, intersection, triangle, 1.0, 0.5, 0.5, 1.0);
+            float radian_direct = ggx(this->position, lightSource, intersection, triangle, 1.0, 0.8, 0.8, 2.0);
             unsigned int iMaterial = shapes[shapeId.first].mesh.material_ids[shapeId.second];
             color_direct = Vec3f(materials[iMaterial].diffuse[0] * radian_direct, 
                                        materials[iMaterial].diffuse[1] * radian_direct,
@@ -174,11 +174,8 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
     }
     
     Vec3f color_indirect(0.0, 0.0, 0.0);
-    if (depth <= MAX_DEPTH)
-    {
-//        vector <Ray> rays = this->getRandomRaysOut(intersection, triangle, depth + 1, NUMBER_OF_RAYS);
-//        cout << "rays.size() = " << rays.size() << endl;
-        
+    if (depth < MAX_DEPTH)
+    {        
         int counter = 0;
         for (int iRay = 0; iRay < NUMBER_OF_RAYS; ++iRay)
         {
@@ -186,19 +183,32 @@ Vec3f Ray::getColor(const vector <tinyobj::shape_t> &shapes,
             
             Vec3f color = ray.getColor(shapes, materials, lightSource);
             ray.direction.normalize();
-//            float cos_theta = dot(ray.direction, getNormal(triangle));
-//            float BRDF = 2 * cos_theta;
-            color_indirect += color;
+            
+            float cos_theta = dot(ray.direction, getNormal(triangle));
+            Vec3f w = lightSource - intersection;
+            Vec3f w0 = this->position - intersection;
+            Vec3f n = getNormal(triangle);
+            w.normalize();
+            w0.normalize();
+            n.normalize();
+            float f_s = brdf_GGX(w, w0, n, 0.8, 0.8);
+            float f_d = f_Lambert(2.0);
+//            float f_d = 0;
+            
+            color_indirect += color * (f_s + f_d) * cos_theta;
             
             counter++;
         }
         
-        if (counter > 0) 
+        if (counter > 0)
             color_indirect /= counter;
     }
     
-    return color_direct + color_indirect;
+    color_direct += color_indirect;
+    for (int i = 0; i < 3; ++i)
+        color_direct[i] = min(color_direct[i], 1.0f);
     
+    return color_direct + color_indirect;
 }
 
 //TO Hung: need to check if the intersection point lies in the triangle ?
@@ -371,7 +381,7 @@ Ray Ray::getRandomRays(Vec3f intersection, Vec3f * triangle, int depth)
     
     float xComponent = getRandomFloat(-1.0, 1.0);
     float yComponent = getRandomFloat(-1.0, 1.0);
-    float normalComponent = getRandomFloat(0.2, 1.0);
+    float normalComponent = getRandomFloat(0.0, 1.0);
 
     Vec3f dirOut(xComponent * ex + yComponent * ey + normalComponent * n);
     dirOut.normalize();
