@@ -55,7 +55,7 @@ struct Ray
     
     bool canReach(Vec3f point, const vector <tinyobj::shape_t> &shapes);
 
-    Vec3f getNormalWithRayComes(Vec3f * triangle);
+
 };
 
 #endif // RAY_H

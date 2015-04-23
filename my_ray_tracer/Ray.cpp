@@ -16,21 +16,6 @@ Ray::Ray(Vec3f position, Vec3f direction, BSHNode * bshRoot, int depth, pair <in
     this->bshRoot = bshRoot;
 }
 
-Vec3f Ray::getNormalwithRayComes(Vec3f * triangle)
-{
-  Vec3f A = triangle[0];
-  Vec3f BA = triangle[1] - A;
-  Vec3f CA = triangle[2] - A;
-  
-  //vector normal of the plane ABC:
-  Vec3f n = cross(BA, CA);
-  n /= n.length();
-  
-  if(dot(n, this.direction) < -EPS)
-    return n;
-  else
-    return -n;
-}
 
 
 //get nearest triangle except exceptionTriangle

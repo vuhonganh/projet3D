@@ -155,3 +155,18 @@ float getRandomFloat(float min, float max)
 }
 
 
+Vec3f getNormalwithRayComes(Vec3f * triangle, Vec3f rayDirection)
+{
+  Vec3f A = triangle[0];
+  Vec3f BA = triangle[1] - A;
+  Vec3f CA = triangle[2] - A;
+  
+  //vector normal of the plane ABC:
+  Vec3f n = cross(BA, CA);
+  n /= n.length();
+  
+  if(dot(n, rayDirection) < -EPS)
+    return n;
+  else
+    return -n;
+}

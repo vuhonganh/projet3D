@@ -6,6 +6,7 @@
 #include <cmath>
 #include "tiny_obj_loader.h"
 
+
 using namespace std;
 
 float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0);
@@ -46,5 +47,8 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f X, Vec3f Y);
 Vec3f getNormal(Vec3f * triangle);
 
 float getRandomFloat(float min, float max);
+
+Vec3f getNormalwithRayComes(Vec3f * triangle, Vec3f rayDirection);
+
 
 #endif // TOOLS_H
