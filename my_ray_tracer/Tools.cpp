@@ -15,13 +15,13 @@ float brdf_GGX(Vec3f w,Vec3f w0,Vec3f n,float alpha,float f0)
     fresnel=f0+(1-f0)*pow(1-fmax(0,nw_h),5);
     //geometric term of GGX
     float nw=dot(n,w);
-    
+
     float nw0=dot(n,w0);
     float g0,g1;
     g0=2*nw0/(nw0+sqrt(alpha_2+(1-alpha_2)*nw0*nw0));
     g1=2*nw/(nw+sqrt(alpha_2+(1-alpha_2)*nw*nw));
     g=g0*g1;
-    
+
     f_s=distr_ggx*fresnel*g/(4*nw*nw0);
     return f_s;
 }
@@ -40,12 +40,12 @@ float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,
     w0.normalize();
     Vec3f n = getNormalwithRayComes(triangle, -w0);
     n.normalize();
-    
+
     float L_w0, f_s, f_d, f;
     f_s = brdf_GGX(w, w0, n, alpha, f0);
     f_d = f_Lambert(k_d);
     f = f_d + f_s;
-    
+
     L_w0 = L_w * f * dot(n, w);
     return L_w0;
 }
@@ -53,9 +53,9 @@ float ggx(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float L_w,
 float Lambert (Vec3f source, Vec3f position, Vec3f normal)
 {
     Vec3f wi(source - position);
-    
+
     wi /= wi.length();
-    return dot(normal, wi); 
+    return dot(normal, wi);
 }
 
 float blinnPhong(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, float s)
@@ -66,10 +66,10 @@ float blinnPhong(Vec3f camPos, Vec3f source, Vec3f vertex, Vec3f * triangle, flo
     wi.normalize();
     wo.normalize();
     n.normalize();
-    
+
     Vec3f wh(wi + wo);
     wh.normalize();
-    
+
     return pow(dot(n, wh),s);
 }
 
@@ -90,30 +90,30 @@ bool lineCutTrianglePlane(Vec3f * triangle, Vec3f direction, Vec3f X, Vec3f Y)
 //    float C = (1 - fabs(2 * hsl[2] - 1)) * hsl[1];
 //    float X = C * (1 - fabs((hsl[0] / angle60) % 2 - 1));
 //    float m = hsl[2] - C/2;
-    
+
 //    Vec3f rgb;
 //    if (hsl[0] >= toRad(0) && hsl[0] < toRad(60))
 //        rgb = Vec3f(C, X, 0);
-    
+
 //    if (hsl[0] >= toRad(60) && hsl[0] < toRad(120))
 //        rgb = Vec3f(X, C, 0);
-    
+
 //    if (hsl[0] >= toRad(120) && hsl[0] < toRad(180))
 //        rgb = Vec3f(0, C, X);
-    
+
 //    if (hsl[0] >= toRad(180) && hsl[0] < toRad(240))
 //        rgb = Vec3f(0, X, C);
-    
+
 //    if (hsl[0] >= toRad(240) && hsl[0] < toRad(300))
 //        rgb = Vec3f(X, 0, C);
-    
+
 //    if (hsl[0] >= toRad(300) && hsl[0] < toRad(360))
 //        rgb = Vec3f(C, 0, X);
-    
+
 //    rgb += Vec3f(m, m, m);
 //    return rgb;
 //}
-   
+
     //vector normal of the plane ABC:
     Vec3f n = cross(BA, CA);
     n /= n.length();
@@ -163,11 +163,16 @@ Vec3f getNormalwithRayComes(Vec3f * triangle, Vec3f rayDirection)
   Vec3f A = triangle[0];
   Vec3f BA = triangle[1] - A;
   Vec3f CA = triangle[2] - A;
-  
+
   //vector normal of the plane ABC:
   Vec3f n = cross(BA, CA);
+<<<<<<< HEAD
   n.normalize();
   
+=======
+  n /= n.length();
+
+>>>>>>> 98eb0353d4fd4b0b208750e3a57991f6c7d7f8da
   if(dot(n, rayDirection) < -EPS)
     return n;
   else
